@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { type RootState } from './store';
 import { setCredentials, logout } from './store/slices/authSlice';
 import { api } from './lib/axios';
+import { useTheme } from './hooks/useTheme';
 import './App.css';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -19,6 +20,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 function App() {
+  useTheme(); // Initialize global theme listener
   const dispatch = useDispatch();
   const token = useSelector((state: RootState) => state.auth.token);
   const user = useSelector((state: RootState) => state.auth.user);

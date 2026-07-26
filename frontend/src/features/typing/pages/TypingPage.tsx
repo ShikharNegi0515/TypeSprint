@@ -10,15 +10,15 @@ import { ComposedChart, Line, Scatter, XAxis, YAxis, Tooltip, ResponsiveContaine
 const WORD_LIST = ["any", "old", "well", "be", "around", "here", "part", "that", "home", "of", "and", "mean", "make", "never", "both", "might", "other", "then", "become", "head", "have", "present", "show", "govern", "world", "year", "it", "point", "line", "think", "word", "too", "feel", "interest", "on", "could", "say", "hold", "increase", "must", "the", "to", "in", "a", "is", "you", "are", "for", "with", "as", "I", "his", "they", "at", "one", "this", "from", "or", "had", "by", "not", "but", "some", "what", "there", "we", "can", "out", "all", "were", "your", "when", "up", "use", "how", "said", "an", "each", "she", "which", "do", "their", "time", "if", "will", "way", "about", "many", "then", "them", "would", "write", "like", "so", "these", "her", "long", "make", "thing", "see", "him", "two", "has", "look", "more", "day", "go", "come", "did", "my", "sound", "no", "most", "number", "who", "over", "know", "water", "than", "call", "first", "people", "may", "down", "side", "been", "now", "find", "work", "new", "take", "get", "place", "made", "live", "where", "after", "back", "little", "only", "round", "man", "year", "came", "every", "good", "me", "give", "our", "under", "name", "very", "through", "just", "form", "sentence", "great", "think", "say", "help", "low", "line", "differ", "turn", "cause", "much", "mean", "before", "move", "right", "boy", "old", "too", "same", "tell", "does", "set", "three", "want", "air", "well", "also", "play", "small", "end", "put", "home", "read", "hand", "port", "large", "spell", "add", "even", "land", "here", "must", "big", "high", "such", "follow", "act", "why", "ask", "men", "change", "went", "light", "kind", "off", "need", "house", "picture", "try", "us", "again", "animal", "point", "mother", "world", "near", "build", "self", "earth", "father"];
 
 const HARD_WORD_LIST = [
-  "ophthalmology", "tasteless", "weathervane", "diffidence", "abounds", 
-  "caprimulgus", "blameworthy", "unify", "desirously", "stasis", 
-  "stinker", "ketch", "gotra", "sapphire", "overhear", "decortication", 
-  "gratuity", "mauser", "scarlatina", "clapper", "incision", 
-  "undersigned", "gabonese", "xylophone", "labyrinth", "quizzical", 
-  "juxtapose", "cacophony", "ephemeral", "sycophant", "ubiquitous", 
-  "obfuscate", "lugubrious", "perspicacious", "magnanimous", "fastidious", 
-  "trepidation", "mellifluous", "serendipity", "defenestration", 
-  "idiosyncrasy", "quintessential", "recalcitrant", "surreptitious", 
+  "ophthalmology", "tasteless", "weathervane", "diffidence", "abounds",
+  "caprimulgus", "blameworthy", "unify", "desirously", "stasis",
+  "stinker", "ketch", "gotra", "sapphire", "overhear", "decortication",
+  "gratuity", "mauser", "scarlatina", "clapper", "incision",
+  "undersigned", "gabonese", "xylophone", "labyrinth", "quizzical",
+  "juxtapose", "cacophony", "ephemeral", "sycophant", "ubiquitous",
+  "obfuscate", "lugubrious", "perspicacious", "magnanimous", "fastidious",
+  "trepidation", "mellifluous", "serendipity", "defenestration",
+  "idiosyncrasy", "quintessential", "recalcitrant", "surreptitious",
   "belligerent", "clandestine", "efficacious", "gregarious", "ineffable",
   "archetype", "bourgeoisie", "camaraderie", "dichotomy", "enfranchise",
   "facetious", "grandiloquent", "hegemony", "iconoclast", "juxtaposition"
@@ -26,7 +26,7 @@ const HARD_WORD_LIST = [
 
 function generateText(count: number, includeNumbers: boolean = false, includePunctuation: boolean = false, difficulty: 'easy' | 'medium' | 'hard' = 'medium') {
   let result = [];
-  
+
   let validWords = WORD_LIST;
   if (difficulty === 'easy') {
     validWords = WORD_LIST.filter(w => w.length <= 4);
@@ -66,8 +66,11 @@ function formatTime(seconds: number) {
   return `${m}:${s}`;
 }
 
+import { useTheme, type Theme } from '../../../hooks/useTheme';
+
 export default function TypingPage() {
   const navigate = useNavigate();
+  const { theme, setTheme } = useTheme();
   const [mode, setMode] = useState<'time' | 'words'>('time');
   const [timeConfig, setTimeConfig] = useState(25);
   const [wordsConfig, setWordsConfig] = useState(50);
@@ -79,13 +82,13 @@ export default function TypingPage() {
   const [customInputValue, setCustomInputValue] = useState('');
   const resultSaved = useRef(false);
   const resultsRef = useRef<HTMLDivElement>(null);
-  
+
   const [wrongWordsList, setWrongWordsList] = useState<string[]>([]);
   const [showPracticeModal, setShowPracticeModal] = useState(false);
   const [showWordsHistory, setShowWordsHistory] = useState(false);
   const [isReplaying, setIsReplaying] = useState(false);
   const [replayTimeMs, setReplayTimeMs] = useState(0);
-  
+
   const [ghostKeystrokes, setGhostKeystrokes] = useState<KeystrokeData[] | null>(null);
   const [ghostTypedChars, setGhostTypedChars] = useState<string | undefined>(undefined);
 
@@ -103,10 +106,10 @@ export default function TypingPage() {
     consistency,
     keystrokes,
     reset: engineReset,
-  } = useTypingEngine({ 
-    mode, 
-    timeLimit: timeConfig, 
-    words: activeText 
+  } = useTypingEngine({
+    mode,
+    timeLimit: timeConfig,
+    words: activeText
   });
 
   const handleRestart = useCallback(() => {
@@ -229,23 +232,23 @@ export default function TypingPage() {
   useEffect(() => {
     let animationFrameId: number;
     let startTimestamp: number | null = null;
-    
+
     if (isReplaying && keystrokes && keystrokes.length > 0) {
       const duration = keystrokes[keystrokes.length - 1].time;
       const playReplay = (timestamp: number) => {
         if (!startTimestamp) startTimestamp = timestamp;
         const elapsed = (timestamp - startTimestamp) * 1.5; // Playback speed
         setReplayTimeMs(elapsed);
-        
+
         if (elapsed < duration + 500) {
-           animationFrameId = requestAnimationFrame(playReplay);
+          animationFrameId = requestAnimationFrame(playReplay);
         } else {
-           setIsReplaying(false);
+          setIsReplaying(false);
         }
       };
       animationFrameId = requestAnimationFrame(playReplay);
     }
-    
+
     return () => cancelAnimationFrame(animationFrameId);
   }, [isReplaying, keystrokes]);
 
@@ -276,7 +279,7 @@ export default function TypingPage() {
       const updateGhost = (timestamp: number) => {
         if (!startTimestamp) startTimestamp = timestamp;
         const elapsed = timestamp - startTimestamp;
-        
+
         let chars = '';
         for (const stroke of ghostKeystrokes) {
           if (stroke.time <= elapsed) {
@@ -326,6 +329,18 @@ export default function TypingPage() {
     }
   };
 
+  // Handle instant restart shortcut
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handleRestart();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleRestart]);
+
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col items-center p-8 font-mono relative">
       {/* Header */}
@@ -336,12 +351,12 @@ export default function TypingPage() {
             typesprint
           </h1>
           <button className="hover:text-foreground transition-colors p-2"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></button>
-          <button onClick={() => navigate('/multiplayer')} className="hover:text-foreground transition-colors p-2"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></button>
-          <button onClick={() => navigate('/leaderboard')} className="hover:text-foreground transition-colors p-2"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg></button>
+          <button onClick={() => navigate('/multiplayer')} className="hover:text-foreground transition-colors p-2"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg></button>
+          <button onClick={() => navigate('/leaderboard')} className="hover:text-foreground transition-colors p-2"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" /><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" /><path d="M4 22h16" /><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" /><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" /><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" /></svg></button>
         </div>
         <div className="flex items-center gap-4">
-          <button className="hover:text-foreground transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></button>
-          <button onClick={() => navigate('/profile')} className="hover:text-foreground transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
+          <button className="hover:text-foreground transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></svg></button>
+          <button onClick={() => navigate('/profile')} className="hover:text-foreground transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg></button>
         </div>
       </header>
 
@@ -352,13 +367,13 @@ export default function TypingPage() {
           <button onClick={toggleNumbers} className={`hover:text-foreground transition-colors flex items-center gap-1.5 ${includeNumbers ? 'text-primary' : ''}`}><span className="text-primary text-xs">#</span> numbers</button>
         </div>
         <div className="flex gap-4 items-center border-r border-border pr-6">
-          <button onClick={() => handleModeChange('time')} className={`hover:text-foreground transition-colors flex items-center gap-1.5 ${mode === 'time' ? 'text-primary' : ''}`}><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> time</button>
+          <button onClick={() => handleModeChange('time')} className={`hover:text-foreground transition-colors flex items-center gap-1.5 ${mode === 'time' ? 'text-primary' : ''}`}><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg> time</button>
           <button onClick={() => handleModeChange('words')} className={`hover:text-foreground transition-colors flex items-center gap-1.5 ${mode === 'words' ? 'text-primary' : ''}`}><span className="text-xs font-bold font-sans tracking-tight">A</span> words</button>
         </div>
         <div className="flex gap-4 items-center border-r border-border pr-6">
-          <button onClick={() => handleDifficultyChange('easy')} className={`hover:text-foreground transition-colors flex items-center gap-1.5 ${difficulty === 'easy' ? 'text-primary' : ''}`}><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg> easy</button>
-          <button onClick={() => handleDifficultyChange('medium')} className={`hover:text-foreground transition-colors flex items-center gap-1.5 ${difficulty === 'medium' ? 'text-primary' : ''}`}><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M8 12h8"/></svg> medium</button>
-          <button onClick={() => handleDifficultyChange('hard')} className={`hover:text-foreground transition-colors flex items-center gap-1.5 ${difficulty === 'hard' ? 'text-primary' : ''}`}><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg> hard</button>
+          <button onClick={() => handleDifficultyChange('easy')} className={`hover:text-foreground transition-colors flex items-center gap-1.5 ${difficulty === 'easy' ? 'text-primary' : ''}`}><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" /><path d="m9 12 2 2 4-4" /></svg> easy</button>
+          <button onClick={() => handleDifficultyChange('medium')} className={`hover:text-foreground transition-colors flex items-center gap-1.5 ${difficulty === 'medium' ? 'text-primary' : ''}`}><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" /><path d="M8 12h8" /></svg> medium</button>
+          <button onClick={() => handleDifficultyChange('hard')} className={`hover:text-foreground transition-colors flex items-center gap-1.5 ${difficulty === 'hard' ? 'text-primary' : ''}`}><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" /><path d="m15 9-6 6" /><path d="m9 9 6 6" /></svg> hard</button>
         </div>
         <div className="flex gap-4 items-center">
           {[10, 25, 50, 100].map((t) => {
@@ -373,13 +388,12 @@ export default function TypingPage() {
               </button>
             );
           })}
-          <button 
+          <button
             onClick={handleCustomConfig}
-            className={`hover:text-foreground transition-colors flex items-center gap-1.5 ${
-              ![10, 25, 50, 100].includes(mode === 'time' ? timeConfig : wordsConfig) ? 'text-primary' : ''
-            }`}
+            className={`hover:text-foreground transition-colors flex items-center gap-1.5 ${![10, 25, 50, 100].includes(mode === 'time' ? timeConfig : wordsConfig) ? 'text-primary' : ''
+              }`}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="20" x2="12" y2="10" /><line x1="18" y1="20" x2="18" y2="4" /><line x1="6" y1="20" x2="6" y2="16" /></svg>
             {![10, 25, 50, 100].includes(mode === 'time' ? timeConfig : wordsConfig) && (
               <span>{mode === 'time' ? timeConfig : wordsConfig}</span>
             )}
@@ -389,7 +403,7 @@ export default function TypingPage() {
 
       {/* Language / Mode info */}
       <div className={`mt-16 text-muted-foreground text-sm flex items-center gap-2 transition-opacity duration-200 ${status === 'idle' ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" /><path d="M2 12h20" /></svg>
         english
       </div>
 
@@ -404,109 +418,109 @@ export default function TypingPage() {
           >
             <div ref={resultsRef} className="w-full bg-background pb-4 pt-4">
               {/* Header Stats & Chart */}
-            <div className="grid grid-cols-12 gap-8 w-full">
-              {/* Left Stats: WPM and ACC */}
-              <div className="col-span-2 flex flex-col justify-center gap-8 pr-4">
-                <div className="space-y-1">
-                  <p className="text-3xl text-muted-foreground tracking-tight">wpm</p>
-                  <p className="text-[5rem] font-bold text-primary tracking-tighter leading-none">{wpm}</p>
+              <div className="grid grid-cols-12 gap-8 w-full">
+                {/* Left Stats: WPM and ACC */}
+                <div className="col-span-2 flex flex-col justify-center gap-8 pr-4">
+                  <div className="space-y-1">
+                    <p className="text-3xl text-muted-foreground tracking-tight">wpm</p>
+                    <p className="text-[5rem] font-bold text-primary tracking-tighter leading-none">{wpm}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-3xl text-muted-foreground tracking-tight">acc</p>
+                    <p className="text-[5rem] font-bold text-primary tracking-tighter leading-none">{accuracy}%</p>
+                  </div>
                 </div>
-                <div className="space-y-1">
-                  <p className="text-3xl text-muted-foreground tracking-tight">acc</p>
-                  <p className="text-[5rem] font-bold text-primary tracking-tighter leading-none">{accuracy}%</p>
-                </div>
-              </div>
-              
-              {/* Chart */}
-              <div className="col-span-10 h-[250px] w-full mt-4">
-                <ResponsiveContainer width="100%" height="100%">
-                  <ComposedChart data={history} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                    <XAxis dataKey="time" tick={{ fill: 'var(--muted-foreground)' }} tickLine={false} axisLine={false} />
-                    <YAxis yAxisId="left" tick={{ fill: 'var(--muted-foreground)' }} tickLine={false} axisLine={false} />
-                    <YAxis yAxisId="right" orientation="right" tick={{ fill: 'var(--destructive)' }} tickLine={false} axisLine={false} domain={[0, 'dataMax + 2']} />
-                    <Tooltip 
-                      contentStyle={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', borderRadius: '0.5rem' }}
-                      itemStyle={{ color: 'var(--foreground)' }}
-                    />
-                    <Line yAxisId="left" type="monotone" dataKey="wpm" stroke="var(--primary)" strokeWidth={3} dot={false} activeDot={{ r: 6 }} />
-                    <Line yAxisId="left" type="monotone" dataKey="raw" stroke="var(--muted-foreground)" strokeWidth={2} dot={false} opacity={0.5} />
-                    <Scatter yAxisId="right" dataKey="errors" fill="var(--destructive)" shape="cross" />
-                  </ComposedChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
 
-            {/* Bottom Stats Row */}
-            <div className="grid grid-cols-12 gap-4 w-full mt-10 pl-2">
-              <div className="space-y-1 col-span-2">
-                <p className="text-sm text-muted-foreground">test type</p>
-                <p className="text-xl text-primary font-semibold">{mode} {mode === 'time' ? timeConfig : wordsConfig}<br/>english</p>
+                {/* Chart */}
+                <div className="col-span-10 h-[250px] w-full mt-4">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <ComposedChart data={history} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                      <XAxis dataKey="time" tick={{ fill: 'var(--muted-foreground)' }} tickLine={false} axisLine={false} />
+                      <YAxis yAxisId="left" tick={{ fill: 'var(--muted-foreground)' }} tickLine={false} axisLine={false} />
+                      <YAxis yAxisId="right" orientation="right" tick={{ fill: 'var(--destructive)' }} tickLine={false} axisLine={false} domain={[0, 'dataMax + 2']} />
+                      <Tooltip
+                        contentStyle={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', borderRadius: '0.5rem' }}
+                        itemStyle={{ color: 'var(--foreground)' }}
+                      />
+                      <Line yAxisId="left" type="monotone" dataKey="wpm" stroke="var(--primary)" strokeWidth={3} dot={false} activeDot={{ r: 6 }} />
+                      <Line yAxisId="left" type="monotone" dataKey="raw" stroke="var(--muted-foreground)" strokeWidth={2} dot={false} opacity={0.5} />
+                      <Scatter yAxisId="right" dataKey="errors" fill="var(--destructive)" shape="cross" />
+                    </ComposedChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
-              <div className="space-y-1 col-span-2">
-                <p className="text-sm text-muted-foreground">other</p>
-                <p className="text-xl text-foreground font-semibold">none</p>
+
+              {/* Bottom Stats Row */}
+              <div className="grid grid-cols-12 gap-4 w-full mt-10 pl-2">
+                <div className="space-y-1 col-span-2">
+                  <p className="text-sm text-muted-foreground">test type</p>
+                  <p className="text-xl text-primary font-semibold">{mode} {mode === 'time' ? timeConfig : wordsConfig}<br />english</p>
+                </div>
+                <div className="space-y-1 col-span-2">
+                  <p className="text-sm text-muted-foreground">other</p>
+                  <p className="text-xl text-foreground font-semibold">none</p>
+                </div>
+                <div className="space-y-1 col-span-2">
+                  <p className="text-sm text-muted-foreground">raw</p>
+                  <p className="text-4xl text-foreground font-semibold">{rawWpm}</p>
+                </div>
+                <div className="space-y-1 col-span-3">
+                  <p className="text-sm text-muted-foreground">characters</p>
+                  <p className="text-4xl text-foreground font-semibold">{stats.correct}/{stats.incorrect}/{stats.extra}/{stats.missed}</p>
+                </div>
+                <div className="space-y-1 col-span-2">
+                  <p className="text-sm text-muted-foreground">consistency</p>
+                  <p className="text-4xl text-foreground font-semibold">{consistency}%</p>
+                </div>
+                <div className="space-y-1 col-span-1">
+                  <p className="text-sm text-muted-foreground">time</p>
+                  <p className="text-4xl text-foreground font-semibold">{mode === 'time' ? timeConfig : formatTime(timeElapsed)}s</p>
+                </div>
               </div>
-              <div className="space-y-1 col-span-2">
-                <p className="text-sm text-muted-foreground">raw</p>
-                <p className="text-4xl text-foreground font-semibold">{rawWpm}</p>
-              </div>
-              <div className="space-y-1 col-span-3">
-                <p className="text-sm text-muted-foreground">characters</p>
-                <p className="text-4xl text-foreground font-semibold">{stats.correct}/{stats.incorrect}/{stats.extra}/{stats.missed}</p>
-              </div>
-              <div className="space-y-1 col-span-2">
-                <p className="text-sm text-muted-foreground">consistency</p>
-                <p className="text-4xl text-foreground font-semibold">{consistency}%</p>
-              </div>
-              <div className="space-y-1 col-span-1">
-                <p className="text-sm text-muted-foreground">time</p>
-                <p className="text-4xl text-foreground font-semibold">{mode === 'time' ? timeConfig : formatTime(timeElapsed)}s</p>
-              </div>
-            </div>
             </div> {/* Close resultsRef */}
-            
+
             <div className="flex justify-center mt-12 gap-2 text-muted-foreground">
               <button
                 onClick={handleRestart}
                 className="hover:text-foreground transition-colors p-4 hover:bg-card rounded"
                 title="Next test"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6" /></svg>
               </button>
               <button
                 onClick={handleRepeat}
                 className="hover:text-foreground transition-colors p-4 hover:bg-card rounded"
                 title="Repeat test"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /></svg>
               </button>
               <button
                 onClick={() => setShowPracticeModal(true)}
                 className="hover:text-foreground transition-colors p-4 hover:bg-card rounded"
                 title="Practice words"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
               </button>
               <button
                 onClick={() => { setShowWordsHistory(prev => !prev); setIsReplaying(false); }}
                 className={`transition-colors p-4 hover:bg-card rounded ${showWordsHistory ? 'text-primary' : 'hover:text-foreground'}`}
                 title="Toggle words history"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="18" y2="18"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="15" y2="12" /><line x1="3" y1="18" x2="18" y2="18" /></svg>
               </button>
               <button
                 onClick={() => { setIsReplaying(true); setShowWordsHistory(false); setReplayTimeMs(0); }}
                 className={`transition-colors p-4 hover:bg-card rounded ${isReplaying ? 'text-primary' : 'hover:text-foreground'}`}
                 title="Watch replay"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 19 2 12 11 5 11 19"/><polygon points="22 19 13 12 22 5 22 19"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 19 2 12 11 5 11 19" /><polygon points="22 19 13 12 22 5 22 19" /></svg>
               </button>
               <button
                 onClick={handleCopyScreenshot}
                 className="hover:text-foreground transition-colors p-4 hover:bg-card rounded"
                 title="Copy screenshot"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
               </button>
             </div>
 
@@ -516,18 +530,18 @@ export default function TypingPage() {
                 <div className="text-sm">
                   <div className="flex items-center gap-2 mb-2 text-muted-foreground">
                     <span>input history</span>
-                    <button onClick={() => setShowWordsHistory(false)} className="hover:text-foreground"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+                    <button onClick={() => setShowWordsHistory(false)} className="hover:text-foreground"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg></button>
                   </div>
                   <div className="text-xl leading-relaxed opacity-80 break-words">
                     {activeText.split(' ').slice(0, typedChars.length > 0 ? typedChars.trimEnd().split(' ').length : 0).map((word, wIdx) => {
                       const typedWordList = typedChars.split(' ');
                       const typedWord = typedWordList[wIdx] || '';
-                      
+
                       // Do not render if they haven't typed anything for this word yet
                       if (wIdx === typedWordList.length - 1 && typedWord === '') {
                         return null;
                       }
-                      
+
                       return (
                         <span key={wIdx} className="mr-2">
                           {word.split('').map((char, cIdx) => {
@@ -552,7 +566,7 @@ export default function TypingPage() {
                 <div className="text-sm">
                   <div className="flex items-center gap-2 mb-2 text-muted-foreground">
                     <span>watch replay</span>
-                    <button onClick={() => setIsReplaying(false)} className="hover:text-foreground"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+                    <button onClick={() => setIsReplaying(false)} className="hover:text-foreground"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg></button>
                   </div>
                   <div className="scale-75 origin-top-left -ml-4 mt-4 opacity-80 pointer-events-none">
                     <TypingArea words={activeText} typedChars={replayTypedChars} />
@@ -582,16 +596,16 @@ export default function TypingPage() {
                 )}
               </div>
             </div>
-            
+
             <TypingArea words={activeText} typedChars={typedChars} ghostTypedChars={ghostTypedChars} />
-            
+
             <div className={`mt-12 text-muted-foreground flex justify-center transition-opacity duration-200 ${status === 'idle' ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
               <button
                 onClick={handleRestart}
                 className="hover:text-foreground transition-colors p-2"
                 title="Restart"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /></svg>
               </button>
             </div>
           </motion.div>
@@ -600,25 +614,45 @@ export default function TypingPage() {
 
       {/* Footer Hints */}
       <div className="mt-auto mb-16 text-center space-y-2">
-        <p className="text-muted-foreground text-xs"><span className="bg-card px-1.5 py-0.5 rounded text-foreground font-semibold">tab</span> + <span className="bg-card px-1.5 py-0.5 rounded text-foreground font-semibold">enter</span> - restart test</p>
-        <p className="text-muted-foreground text-xs"><span className="bg-card px-1.5 py-0.5 rounded text-foreground font-semibold">escape</span> or <span className="bg-card px-1.5 py-0.5 rounded text-foreground font-semibold">ctrl</span> + <span className="bg-card px-1.5 py-0.5 rounded text-foreground font-semibold">shift</span> + <span className="bg-card px-1.5 py-0.5 rounded text-foreground font-semibold">p</span> - command line</p>
+        <p className="text-muted-foreground text-xs"><span className="bg-card px-1.5 py-0.5 rounded text-foreground font-semibold">escape</span> - instantly restart test</p>
       </div>
 
       {/* Bottom Nav */}
       <footer className="w-full max-w-7xl flex justify-between text-xs text-muted-foreground mb-4">
         <div className="flex gap-4">
-          <a href="#" className="hover:text-foreground transition-colors flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg> contact</a>
-          <a href="#" className="hover:text-foreground transition-colors flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> support</a>
-          <a href="#" className="hover:text-foreground transition-colors flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg> github</a>
-          <a href="#" className="hover:text-foreground transition-colors flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.5 12h-19"/><path d="M8.5 21a11.9 11.9 0 0 1 0-18"/><path d="M15.5 3a11.9 11.9 0 0 1 0 18"/></svg> discord</a>
-          <a href="#" className="hover:text-foreground transition-colors flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg> twitter</a>
-          <a href="#" className="hover:text-foreground transition-colors flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 7h10"/><path d="M7 12h10"/><path d="M7 17h10"/></svg> terms</a>
-          <a href="#" className="hover:text-foreground transition-colors flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> security</a>
-          <a href="#" className="hover:text-foreground transition-colors flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> privacy</a>
+          <a href="#" className="hover:text-foreground transition-colors flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></svg> contact</a>
+          <a href="#" className="hover:text-foreground transition-colors flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg> support</a>
+          <a href="#" className="hover:text-foreground transition-colors flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" /><path d="M9 18c-4.51 2-5-2-7-2" /></svg> github</a>
+          <a href="#" className="hover:text-foreground transition-colors flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.5 12h-19" /><path d="M8.5 21a11.9 11.9 0 0 1 0-18" /><path d="M15.5 3a11.9 11.9 0 0 1 0 18" /></svg> discord</a>
+          <a href="#" className="hover:text-foreground transition-colors flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" /></svg> twitter</a>
+          <a href="#" className="hover:text-foreground transition-colors flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" /><path d="M7 7h10" /><path d="M7 12h10" /><path d="M7 17h10" /></svg> terms</a>
+          <a href="#" className="hover:text-foreground transition-colors flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg> security</a>
+          <a href="#" className="hover:text-foreground transition-colors flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg> privacy</a>
         </div>
+
         <div className="flex gap-4">
-          <button className="hover:text-foreground transition-colors flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m16.5 16.5-4.5-4.5V6"/></svg> serika dark</button>
-          <span className="flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 10h3a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h3"/><path d="M6 4v6"/><path d="M18 4v6"/><path d="M10 2h4"/></svg> v1.0.0</span>
+          <div className="flex items-center gap-2 relative group">
+            <button className="hover:text-foreground transition-colors flex items-center gap-1 py-1">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="m16.5 16.5-4.5-4.5V6" /></svg>
+              {theme === 'default' ? 'dark' : theme}
+            </button>
+            {/* Invisible hover bridge using pb-2 instead of mb-2 */}
+            <div className="absolute bottom-full right-0 pb-2 w-max opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity duration-200 z-50">
+              <div className="bg-card border border-border rounded-lg shadow-xl p-2 flex flex-col gap-1">
+                {(['default', 'dracula', 'nord', 'matrix', 'pastel'] as Theme[]).map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => setTheme(t)}
+                    className={`text-left px-3 py-1.5 rounded hover:bg-muted transition-colors ${theme === t ? 'text-primary font-bold' : 'text-foreground'}`}
+                  >
+                    {t === 'default' ? 'dark' : t}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <span className="flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 10h3a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h3" /><path d="M6 4v6" /><path d="M18 4v6" /><path d="M10 2h4" /></svg> v1.0.0</span>
         </div>
       </footer>
 
@@ -643,8 +677,8 @@ export default function TypingPage() {
               <p className="text-sm text-muted-foreground">
                 Enter a custom {mode === 'time' ? 'time in seconds' : 'word count'} for your test.
               </p>
-              <input 
-                type="number" 
+              <input
+                type="number"
                 autoFocus
                 className="bg-background border border-border rounded-lg px-4 py-2 text-foreground focus:outline-none focus:border-primary transition-colors"
                 value={customInputValue}
@@ -655,13 +689,13 @@ export default function TypingPage() {
                 }}
               />
               <div className="flex justify-end gap-2 mt-2">
-                <button 
+                <button
                   onClick={() => setShowCustomModal(false)}
                   className="px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Cancel
                 </button>
-                <button 
+                <button
                   onClick={submitCustomConfig}
                   className="px-4 py-2 bg-primary text-background rounded-lg font-medium hover:opacity-90 transition-opacity"
                 >
@@ -695,15 +729,15 @@ export default function TypingPage() {
                 <br /><br />
                 {wrongWordsList.length === 0 ? "You didn't miss any words!" : `You missed ${wrongWordsList.length} words.`}
               </p>
-              
+
               <div className="flex justify-end gap-2 mt-4">
-                <button 
+                <button
                   onClick={() => setShowPracticeModal(false)}
                   className="px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Cancel
                 </button>
-                <button 
+                <button
                   onClick={startPractice}
                   disabled={wrongWordsList.length === 0}
                   className="px-4 py-2 bg-primary text-background rounded-lg font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
