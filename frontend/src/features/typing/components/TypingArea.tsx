@@ -11,6 +11,7 @@ interface CharProps {
   char: string;
   typedChar?: string;
   ghostChar?: string;
+  isExtra: boolean;
   isCurrent: boolean;
   isGhostCurrent: boolean;
   setCurrentRef: (el: HTMLSpanElement | null) => void;
@@ -20,7 +21,8 @@ interface CharProps {
 const MemoizedChar = memo(({ 
   char, 
   typedChar, 
-  ghostChar, 
+  ghostChar,
+  isExtra,
   isCurrent, 
   isGhostCurrent, 
   setCurrentRef, 
@@ -28,7 +30,9 @@ const MemoizedChar = memo(({
 }: CharProps) => {
   let colorClass = 'text-muted-foreground opacity-50';
 
-  if (typedChar !== undefined) {
+  if (isExtra) {
+    colorClass = 'text-destructive opacity-80'; // Extra characters are dark red
+  } else if (typedChar !== undefined) {
     if (typedChar === char) {
       colorClass = 'text-foreground';
     } else {
@@ -110,24 +114,9 @@ export const TypingArea: React.FC<TypingAreaProps> = ({ words, typedChars, ghost
     }
   }, [words, typedChars.length]);
 
-  const wordElements = useMemo(() => {
-    const elements = [];
-    let currentWordChars: { char: string; index: number }[] = [];
-    
-    const chars = words.split('');
-    for (let i = 0; i < chars.length; i++) {
-      const char = chars[i];
-      currentWordChars.push({ char, index: i });
-      if (char === ' ') {
-        elements.push(currentWordChars);
-        currentWordChars = [];
-      }
-    }
-    if (currentWordChars.length > 0) {
-      elements.push(currentWordChars);
-    }
-    return elements;
-  }, [words]);
+  const actualWords = useMemo(() => words.split(' '), [words]);
+  const typedWordsList = useMemo(() => typedChars.split(' '), [typedChars]);
+  const ghostWordsList = useMemo(() => ghostTypedChars ? ghostTypedChars.split(' ') : undefined, [ghostTypedChars]);
 
   return (
     <div 
@@ -144,12 +133,12 @@ export const TypingArea: React.FC<TypingAreaProps> = ({ words, typedChars, ghost
             className="absolute w-[3px] bg-primary rounded-full z-20"
             initial={false}
             animate={{ x: caretPos.left, y: caretPos.top + 5 }}
-            transition={{ type: "tween", duration: 0.08, ease: "linear" }}
+            transition={{ type: "spring", stiffness: 500, damping: 30, mass: 1 }}
             style={{ 
               height: '42px',
               top: 0,
               left: 0,
-              opacity: typedChars.length === words.length ? 0 : 1
+              opacity: typedChars.length >= words.length && typedChars.length > 0 ? 0 : 1
             }} 
           />
         )}
@@ -159,47 +148,104 @@ export const TypingArea: React.FC<TypingAreaProps> = ({ words, typedChars, ghost
             className="absolute w-[3px] bg-muted-foreground opacity-40 rounded-full z-10"
             initial={false}
             animate={{ x: ghostCaretPos.left, y: ghostCaretPos.top + 5 }}
-            transition={{ type: "tween", duration: 0.08, ease: "linear" }}
+            transition={{ type: "spring", stiffness: 500, damping: 30, mass: 1 }}
             style={{ 
               height: '42px',
               top: 0,
               left: 0,
-              opacity: ghostTypedChars.length === words.length ? 0 : 1
+              opacity: ghostTypedChars.length >= words.length && ghostTypedChars.length > 0 ? 0 : 1
             }} 
           />
         )}
 
-        {wordElements.map((word, wIdx) => (
-          <div key={wIdx} className="inline-block mr-0">
-            {word.map((item) => {
-              const { char, index } = item;
-              const typedChar = typedChars[index];
-              const ghostChar = ghostTypedChars?.[index];
-              const isCurrent = index === typedChars.length;
-              const isGhostCurrent = ghostTypedChars !== undefined && index === ghostTypedChars.length;
-              
-              return (
+        {actualWords.map((actualWord, wIdx) => {
+          const typedWord = typedWordsList[wIdx];
+          const ghostWord = ghostWordsList?.[wIdx];
+          
+          const isCurrentWord = wIdx === typedWordsList.length - 1;
+          const isGhostCurrentWord = ghostWordsList && wIdx === ghostWordsList.length - 1;
+          
+          const maxLen = Math.max(actualWord.length, typedWord?.length || 0, ghostWord?.length || 0);
+          const chars = [];
+          
+          for (let cIdx = 0; cIdx <= maxLen; cIdx++) {
+            const isCurrentChar = isCurrentWord && cIdx === (typedWord?.length || 0);
+            const isGhostCurrentChar = isGhostCurrentWord && cIdx === (ghostWord?.length || 0);
+            
+            if (cIdx < actualWord.length) {
+              // Normal character
+              chars.push(
                 <MemoizedChar
-                  key={index}
-                  char={char}
-                  typedChar={typedChar}
-                  ghostChar={ghostChar}
-                  isCurrent={isCurrent}
-                  isGhostCurrent={isGhostCurrent}
+                  key={cIdx}
+                  char={actualWord[cIdx]}
+                  typedChar={typedWord?.[cIdx]}
+                  ghostChar={ghostWord?.[cIdx]}
+                  isExtra={false}
+                  isCurrent={isCurrentChar}
+                  isGhostCurrent={isGhostCurrentChar}
                   setCurrentRef={setCurrentRef}
                   setGhostCurrentRef={setGhostCurrentRef}
                 />
               );
-            })}
-          </div>
-        ))}
-        
-        {typedChars.length === words.length && words.length > 0 && (
-          <span ref={currentRef} className="inline-block w-[3px]" />
-        )}
-        {ghostTypedChars !== undefined && ghostTypedChars.length === words.length && words.length > 0 && (
-          <span ref={ghostCurrentRef} className="inline-block w-[3px]" />
-        )}
+            } else if (cIdx < (typedWord?.length || 0) || cIdx < (ghostWord?.length || 0)) {
+              // Extra character
+              chars.push(
+                <MemoizedChar
+                  key={cIdx}
+                  char={typedWord?.[cIdx] || ghostWord?.[cIdx] || ''}
+                  typedChar={typedWord?.[cIdx]}
+                  ghostChar={ghostWord?.[cIdx]}
+                  isExtra={true}
+                  isCurrent={isCurrentChar}
+                  isGhostCurrent={isGhostCurrentChar}
+                  setCurrentRef={setCurrentRef}
+                  setGhostCurrentRef={setGhostCurrentRef}
+                />
+              );
+            } else if (isCurrentChar || isGhostCurrentChar) {
+               // Render an empty phantom span just for the caret to attach to at the end of the word if it's strictly longer than actualWord
+               chars.push(
+                <span 
+                  key={cIdx} 
+                  ref={(el) => {
+                    if (isCurrentChar) setCurrentRef(el);
+                    if (isGhostCurrentChar) setGhostCurrentRef(el);
+                  }} 
+                  className="inline-block" 
+                >
+                  &#8203;
+                </span>
+               );
+            }
+          }
+          
+          // Add space at the end of the word
+          const isCurrentSpace = isCurrentWord && typedWord?.length === maxLen && maxLen > actualWord.length;
+          // Note: caret handling for the space is tricky. If we are exactly at the end of the correct word, the caret should be on the space.
+          // Wait, if typedWord === actualWord, cIdx will reach actualWord.length. The loop goes up to maxLen, so if maxLen == actualWord.length, cIdx reaches actualWord.length.
+          // In that case, `cIdx < actualWord.length` is false, `cIdx < typedWord.length` is false, it falls to the third branch and renders phantom span.
+          // This is fine. But we also have an actual space character that belongs to the string.
+          // Let's render the space.
+          
+          return (
+            <div key={wIdx} className="inline-block mr-0">
+              {chars}
+              {wIdx < actualWords.length - 1 && (
+                <MemoizedChar
+                  key="space"
+                  char=" "
+                  typedChar={wIdx < typedWordsList.length - 1 ? ' ' : undefined}
+                  ghostChar={ghostWordsList && wIdx < ghostWordsList.length - 1 ? ' ' : undefined}
+                  isExtra={false}
+                  isCurrent={false} // Caret is handled by the phantom span at the end of the word
+                  isGhostCurrent={false}
+                  setCurrentRef={setCurrentRef}
+                  setGhostCurrentRef={setGhostCurrentRef}
+                />
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

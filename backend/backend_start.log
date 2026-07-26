@@ -1,0 +1,80 @@
+
+> backend@0.0.1 start
+> nest start
+
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[NestFactory] [39m[32mStarting Nest application...[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmModule dependencies initialized[39m[38;5;3m +19ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mPassportModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigHostModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigModule dependencies initialized[39m[38;5;3m +2ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAiModule dependencies initialized[39m[38;5;3m +31ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mJwtModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAppModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmCoreModule dependencies initialized[39m[38;5;3m +97ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mUsersModule dependencies initialized[39m[38;5;3m +2ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAchievementsModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypingModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mRoomsModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAuthModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[WebSocketsController] [39m[32mRoomsGateway subscribed to the "room:join" message[39m[38;5;3m +23ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[WebSocketsController] [39m[32mRoomsGateway subscribed to the "room:start" message[39m[38;5;3m +0ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[WebSocketsController] [39m[32mRoomsGateway subscribed to the "room:progress" message[39m[38;5;3m +0ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[WebSocketsController] [39m[32mRoomsGateway subscribed to the "room:chat" message[39m[38;5;3m +0ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[WebSocketsController] [39m[32mRoomsGateway subscribed to the "room:rematch" message[39m[38;5;3m +0ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAppController {/api}:[39m[38;5;3m +1ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api, GET} route[39m[38;5;3m +2ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mUsersController {/api/users}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/users/me, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/users/:id, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAuthController {/api/auth}:[39m[38;5;3m +1ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/auth/register, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/auth/login, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/auth/me, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/auth/google, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/auth/google/callback, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mTypingController {/api/typing}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/typing/results, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/typing/history, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/typing/tests, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/typing/stats, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/typing/analytics, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/typing/leaderboard, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAchievementsController {/api/achievements}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/achievements/me, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mRoomsController {/api/rooms}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/rooms, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/rooms/:code, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/rooms/:id/participants, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAiController {/api/ai}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/ai/generate, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/ai/categories, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/ai/difficulties, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [32m    LOG[39m [38;5;3m[NestApplication] [39m[32mNest application successfully started[39m[38;5;3m +3ms[39m
+[31m[Nest] 48617  - [39m07/27/2026, 2:36:35 AM [31m  ERROR[39m [38;5;3m[NestApplication] [39m[31mError: listen EADDRINUSE: address already in use :::3000[39m[38;5;3m +2ms[39m
+node:net:1940
+    const ex = new UVExceptionWithHostPort(err, 'listen', address, port);
+               ^
+
+Error: listen EADDRINUSE: address already in use :::3000
+    at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+    at listenInCluster (node:net:1997:12)
+    at Server.listen (node:net:2102:7)
+    at ExpressAdapter.listen (/home/shikhar/Projects/TypeSprint/backend/node_modules/@nestjs/platform-express/adapters/express-adapter.js:115:32)
+    at /home/shikhar/Projects/TypeSprint/backend/node_modules/@nestjs/core/nest-application.js:190:30
+    at new Promise (<anonymous>)
+    at NestApplication.listen (/home/shikhar/Projects/TypeSprint/backend/node_modules/@nestjs/core/nest-application.js:180:16)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async bootstrap (/home/shikhar/Projects/TypeSprint/backend/src/main.ts:30:3) {
+  code: 'EADDRINUSE',
+  errno: -98,
+  syscall: 'listen',
+  address: '::',
+  port: 3000
+}
+
+Node.js v22.22.3

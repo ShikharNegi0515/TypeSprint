@@ -73,12 +73,29 @@ export class TypingService {
     const personalBest = Math.max(...results.map(r => Number(r.wpm)));
     const timeSpent = results.reduce((acc, curr) => acc + Number(curr.duration), 0);
 
+    const heatmap: Record<string, number> = {};
+    results.forEach(r => {
+      if (r.missedChars) {
+        let missedMap = r.missedChars;
+        if (typeof missedMap === 'string') {
+          try { missedMap = JSON.parse(missedMap); } catch (e) {}
+        }
+        if (typeof missedMap === 'object' && missedMap !== null) {
+          for (const [char, count] of Object.entries(missedMap)) {
+            const lowerChar = char.toLowerCase();
+            heatmap[lowerChar] = (heatmap[lowerChar] || 0) + (count as number);
+          }
+        }
+      }
+    });
+
     return {
       totalTests,
       averageWpm: Math.round(averageWpm),
       averageAccuracy: Math.round(averageAccuracy),
       personalBest: Math.round(personalBest),
       timeSpent,
+      heatmap,
     };
   }
 

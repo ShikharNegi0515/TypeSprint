@@ -1,4 +1,4 @@
-import { IsNumber, IsString, IsOptional, IsUUID, Min } from 'class-validator';
+import { IsNumber, IsString, IsOptional, IsUUID, Min, IsObject } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateTestResultDto {
@@ -40,4 +40,9 @@ export class CreateTestResultDto {
   @IsOptional()
   @IsUUID()
   testId?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsObject()
+  missedChars?: Record<string, number>;
 }

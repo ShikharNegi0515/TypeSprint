@@ -107,6 +107,47 @@ export default function ProfilePage() {
         </div>
       </div>
 
+      <div className="w-full max-w-5xl bg-card border border-border rounded-2xl p-8 mb-8">
+        <h2 className="text-2xl font-bold mb-2">Key Heatmap</h2>
+        <p className="text-muted-foreground text-sm mb-6">Keys you miss most frequently are highlighted in red.</p>
+        
+        <div className="flex flex-col items-center gap-2 mt-8">
+          {[
+            ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']'],
+            ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', "'"],
+            ['z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/']
+          ].map((row, rIdx) => (
+            <div key={rIdx} className="flex justify-center gap-2" style={{ paddingLeft: `${rIdx * 24}px` }}>
+              {row.map(char => {
+                let colorClass = 'bg-muted/30 text-muted-foreground';
+                let missCount = 0;
+                
+                if (stats?.heatmap && stats.heatmap[char]) {
+                  missCount = stats.heatmap[char];
+                  const maxMisses = Math.max(...Object.values(stats.heatmap) as number[]);
+                  const ratio = missCount / maxMisses;
+                  
+                  if (ratio > 0.75) colorClass = 'bg-destructive text-destructive-foreground font-bold shadow-[0_0_15px_rgba(202,71,84,0.5)]';
+                  else if (ratio > 0.5) colorClass = 'bg-destructive/70 text-destructive-foreground font-bold';
+                  else if (ratio > 0.25) colorClass = 'bg-destructive/40 text-foreground';
+                  else colorClass = 'bg-destructive/20 text-foreground';
+                }
+                
+                return (
+                  <div 
+                    key={char} 
+                    title={`${char}: ${missCount} misses`}
+                    className={`w-12 h-12 rounded-xl flex items-center justify-center text-lg uppercase transition-all duration-300 ${colorClass}`}
+                  >
+                    {char}
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+        </div>
+      </div>
+
       <div className="w-full max-w-5xl bg-card border border-border rounded-2xl p-8">
         <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
           <span>Achievements</span>

@@ -28,6 +28,7 @@ export const useTypingEngine = ({ mode, timeLimit, words, isEnabled = true }: Us
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [typedChars, setTypedChars] = useState<string>('');
   const [mistakes, setMistakes] = useState(0);
+  const [missedCharsMap, setMissedCharsMap] = useState<Record<string, number>>({});
   const [history, setHistory] = useState<HistoryData[]>([]);
   const [keystrokes, setKeystrokes] = useState<KeystrokeData[]>([]);
   const startTimeRef = useRef<number | null>(null);
@@ -53,6 +54,7 @@ export const useTypingEngine = ({ mode, timeLimit, words, isEnabled = true }: Us
     setTimeElapsed(0);
     setTypedChars('');
     setMistakes(0);
+    setMissedCharsMap({});
     setHistory([]);
     setKeystrokes([]);
     startTimeRef.current = null;
@@ -77,7 +79,29 @@ export const useTypingEngine = ({ mode, timeLimit, words, isEnabled = true }: Us
         start();
       }
 
-      // Ignore meta keys
+      // Handle Backspace (including Ctrl+Backspace)
+      if (e.key === 'Backspace') {
+        e.preventDefault();
+        if (status === 'running') {
+          setKeystrokes((prev) => [...prev, { char: 'Backspace', time: performance.now() - (startTimeRef.current || performance.now()) }]);
+        }
+        
+        if (e.ctrlKey || e.altKey || e.metaKey) {
+          // Delete last word
+          setTypedChars((prev) => {
+            const trimmed = prev.trimEnd();
+            const lastSpaceIdx = trimmed.lastIndexOf(' ');
+            if (lastSpaceIdx === -1) return '';
+            return trimmed.substring(0, lastSpaceIdx + 1);
+          });
+        } else {
+          // Normal backspace
+          setTypedChars((prev) => prev.slice(0, -1));
+        }
+        return;
+      }
+
+      // Ignore other meta keys and modifiers
       if (
         e.ctrlKey ||
         e.metaKey ||
@@ -88,14 +112,6 @@ export const useTypingEngine = ({ mode, timeLimit, words, isEnabled = true }: Us
       }
 
       e.preventDefault();
-
-      if (e.key === 'Backspace') {
-        if (status === 'running') {
-          setKeystrokes((prev) => [...prev, { char: 'Backspace', time: performance.now() - (startTimeRef.current || performance.now()) }]);
-        }
-        setTypedChars((prev) => prev.slice(0, -1));
-        return;
-      }
 
       if (e.key.length === 1) {
         if (status === 'running' || status === 'idle') {
@@ -110,6 +126,10 @@ export const useTypingEngine = ({ mode, timeLimit, words, isEnabled = true }: Us
             const expectedChar = words[nextStr.length - 1];
             if (e.key !== expectedChar) {
               setMistakes((m) => m + 1);
+              setMissedCharsMap((mMap) => ({
+                ...mMap,
+                [expectedChar]: (mMap[expectedChar] || 0) + 1,
+              }));
             }
           }
           return nextStr;
@@ -139,14 +159,32 @@ export const useTypingEngine = ({ mode, timeLimit, words, isEnabled = true }: Us
         const newErrors = currentMistakes - lastMistakes;
         lastMistakes = currentMistakes;
 
-        setTimeElapsed((prev) => {
-          const nextTime = prev + 1;
-          
-          const rawWpmNow = (currentTyped.length / 5) / (nextTime / 60);
-          const accuracyNow = currentTyped.length > 0 
-            ? Math.max(0, ((currentTyped.length - currentMistakes) / currentTyped.length) * 100)
-            : 100;
-          const wpmNow = Math.max(0, rawWpmNow * (accuracyNow / 100));
+          setTimeElapsed((prev) => {
+            const nextTime = prev + 1;
+            
+            let liveCorrect = 0;
+            let liveIncorrect = 0;
+            let liveExtra = 0;
+            
+            const aWords = words.split(' ');
+            const tWords = currentTyped.split(' ');
+            
+            for (let i = 0; i < tWords.length; i++) {
+              const aW = aWords[i] || '';
+              const tW = tWords[i];
+              for (let j = 0; j < Math.max(aW.length, tW.length); j++) {
+                if (j < aW.length && j < tW.length) {
+                  if (aW[j] === tW[j]) liveCorrect++;
+                  else liveIncorrect++;
+                } else if (j >= aW.length) {
+                  liveExtra++;
+                }
+              }
+              if (i < tWords.length - 1) liveCorrect++;
+            }
+
+            const rawWpmNow = ((liveCorrect + liveIncorrect + liveExtra) / 5) / (nextTime / 60);
+            const wpmNow = (liveCorrect / 5) / (nextTime / 60);
 
           setHistory(h => {
             // Prevent duplicate history entries for the same second (Strict Mode issue)
@@ -256,6 +294,7 @@ export const useTypingEngine = ({ mode, timeLimit, words, isEnabled = true }: Us
     timeLeft: mode === 'time' ? Math.max(0, timeLimit - timeElapsed) : 0,
     typedChars,
     mistakes,
+    missedCharsMap,
     wpm: Math.round(wpmCalc),
     rawWpm: Math.round(rawWpm),
     accuracy: Math.round(accuracy),

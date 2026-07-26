@@ -36,6 +36,9 @@ export class TestResult {
   @Column()
   mode: string; // e.g., 'time', 'words', 'quote'
 
+  @Column({ name: 'missed_chars', type: 'jsonb', nullable: true })
+  missedChars: Record<string, number>;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 }

@@ -105,6 +105,7 @@ export default function TypingPage() {
     history,
     consistency,
     keystrokes,
+    missedCharsMap,
     reset: engineReset,
   } = useTypingEngine({
     mode,
@@ -205,6 +206,7 @@ export default function TypingPage() {
         rawWpm,
         accuracy,
         mistakes,
+        missedChars: missedCharsMap,
         characterCount: typedChars.length,
         duration: mode === 'time' ? timeConfig : timeElapsed,
         mode: mode
@@ -213,7 +215,7 @@ export default function TypingPage() {
     if (status !== 'finished') {
       resultSaved.current = false;
     }
-  }, [status, wpm, rawWpm, accuracy, mistakes, timeConfig, timeElapsed, typedChars.length, mode]);
+  }, [status, wpm, rawWpm, accuracy, mistakes, missedCharsMap, timeConfig, timeElapsed, typedChars.length, mode]);
 
   useEffect(() => {
     if (status === 'finished') {
