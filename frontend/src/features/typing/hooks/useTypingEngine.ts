@@ -20,9 +20,10 @@ interface UseTypingEngineProps {
   mode: TestMode;
   timeLimit: number;
   words: string;
+  isEnabled?: boolean;
 }
 
-export const useTypingEngine = ({ mode, timeLimit, words }: UseTypingEngineProps) => {
+export const useTypingEngine = ({ mode, timeLimit, words, isEnabled = true }: UseTypingEngineProps) => {
   const [status, setStatus] = useState<TestStatus>('idle');
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [typedChars, setTypedChars] = useState<string>('');
@@ -59,7 +60,15 @@ export const useTypingEngine = ({ mode, timeLimit, words }: UseTypingEngineProps
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (status === 'finished') return;
+      if (!isEnabled || status === 'finished') return;
+
+      // Ignore if user is typing in an input or textarea
+      if (
+        document.activeElement &&
+        (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')
+      ) {
+        return;
+      }
 
       if (status === 'idle') {
         if (typedChars.length === 0 && e.key !== words[0]) {

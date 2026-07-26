@@ -2,8 +2,6 @@ import { useEffect, useState } from 'react';
 import { api } from '../../../lib/axios';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { logout } from '../../../store/slices/authSlice';
 
 interface LeaderboardEntry {
   id: string;
@@ -16,13 +14,7 @@ interface LeaderboardEntry {
 
 export default function LeaderboardPage() {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
-
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate('/');
-  };
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -45,14 +37,9 @@ export default function LeaderboardPage() {
         <Link to="/" className="text-3xl font-bold tracking-tighter text-primary hover:opacity-80 transition-opacity">
           TypeSprint
         </Link>
-        <div className="flex gap-4">
-          <button onClick={() => navigate('/')} className="px-4 py-2 rounded-lg bg-card border border-border text-sm font-medium hover:bg-muted transition-colors">
-            Back to Typing
-          </button>
-          <button onClick={handleLogout} className="px-4 py-2 rounded-lg bg-card border border-border text-sm font-medium hover:bg-muted transition-colors text-destructive">
-            Logout
-          </button>
-        </div>
+        <button onClick={() => navigate('/')} className="px-4 py-2 rounded-lg bg-card border border-border text-sm font-medium hover:bg-muted transition-colors">
+          Back to Typing
+        </button>
       </div>
 
       <div className="w-full max-w-4xl">

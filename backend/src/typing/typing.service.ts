@@ -99,24 +99,31 @@ export class TypingService {
   }
 
   async getLeaderboard(limit: number = 10) {
-    // Get the top results ordered by WPM. 
-    // For a simple implementation, we just get the top distinct tests.
-    // Ideally, this should group by user to only show one entry per user.
     const qb = this.testResultRepository.createQueryBuilder('result')
-      .leftJoinAndSelect('result.user', 'user')
-      .orderBy('result.wpm', 'DESC')
-      .addOrderBy('result.accuracy', 'DESC')
-      .take(limit);
+      .leftJoin('result.user', 'user')
+      .select([
+        'user.id as "userId"',
+        'user.username as "username"',
+        'MAX(result.wpm) as "wpm"',
+        'MAX(result.accuracy) as "accuracy"',
+        'MAX(result.createdAt) as "date"'
+      ])
+      .where('user.id IS NOT NULL')
+      .groupBy('user.id')
+      .addGroupBy('user.username')
+      .orderBy('"wpm"', 'DESC')
+      .addOrderBy('"accuracy"', 'DESC')
+      .limit(limit);
 
-    const topResults = await qb.getMany();
+    const topResults = await qb.getRawMany();
 
     return topResults.map(r => ({
-      id: r.id,
-      userId: r.user?.id,
-      username: r.user?.username,
+      id: r.userId, // use userId as unique key for leaderboard entry
+      userId: r.userId,
+      username: r.username,
       wpm: Number(r.wpm),
       accuracy: Number(r.accuracy),
-      date: r.createdAt,
+      date: r.date,
     }));
   }
 }

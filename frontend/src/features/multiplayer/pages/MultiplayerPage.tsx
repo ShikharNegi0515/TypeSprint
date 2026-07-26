@@ -4,8 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../../../lib/axios';
 import { useMultiplayer, type Participant, type ChatMessage } from '../hooks/useMultiplayer';
 import { useTypingEngine } from '../../typing/hooks/useTypingEngine';
-import { useDispatch } from 'react-redux';
-import { logout } from '../../../store/slices/authSlice';
 
 // ── Progress Bar ──────────────────────────────────────────────────────────────
 function PlayerProgress({ p, isMe }: { p: Participant; isMe: boolean }) {
@@ -77,14 +75,8 @@ function ChatPanel({ messages, onSend }: { messages: ChatMessage[]; onSend: (m: 
 // ── Main MultiplayerPage ──────────────────────────────────────────────────────
 export default function MultiplayerPage() {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const [roomCodeInput, setRoomCodeInput] = useState('');
   const [isCreating, setIsCreating] = useState(false);
-
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate('/');
-  };
 
   const {
     status, room, participants, countdown, text, messages, error,
@@ -92,10 +84,17 @@ export default function MultiplayerPage() {
   } = useMultiplayer();
 
   // Typing engine (only active when playing)
-  const { typedChars, wpm } = useTypingEngine({
-    initialTime: 60,
+  const { typedChars, wpm, reset } = useTypingEngine({
+    mode: 'words',
+    timeLimit: 120, // 2 minutes max
     words: text || 'placeholder',
+    isEnabled: status === 'playing',
   });
+
+  // Reset engine when new text arrives
+  useEffect(() => {
+    reset();
+  }, [text, reset]);
 
   // Send live progress to server
   useEffect(() => {
@@ -125,14 +124,9 @@ export default function MultiplayerPage() {
   if (status === 'idle') {
     return (
       <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center p-8 gap-8">
-        <div className="absolute top-6 left-6 right-6 flex justify-between items-center">
-          <button onClick={() => navigate('/')} className="text-muted-foreground hover:text-foreground transition-colors text-sm flex items-center gap-1">
-            ← Back
-          </button>
-          <button onClick={handleLogout} className="text-destructive hover:text-destructive/80 transition-colors text-sm font-medium">
-            Logout
-          </button>
-        </div>
+        <button onClick={() => navigate('/')} className="absolute top-6 left-6 text-muted-foreground hover:text-foreground transition-colors text-sm flex items-center gap-1">
+          ← Back
+        </button>
         <h1 className="text-4xl font-bold tracking-tighter text-primary">Multiplayer</h1>
         {error && <p className="text-destructive text-sm">{error}</p>}
         <div className="flex flex-col md:flex-row gap-6 w-full max-w-2xl">
