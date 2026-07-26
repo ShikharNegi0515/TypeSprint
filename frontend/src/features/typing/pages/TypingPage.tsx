@@ -1,17 +1,61 @@
-import { useEffect, useState, useRef, useCallback } from 'react';
-import { useTypingEngine } from '../hooks/useTypingEngine';
+import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
+import html2canvas from 'html2canvas';
+import { useTypingEngine, type KeystrokeData } from '../hooks/useTypingEngine';
 import { TypingArea } from '../components/TypingArea';
 import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../../../lib/axios';
 import { useNavigate } from 'react-router-dom';
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { ComposedChart, Line, Scatter, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
-const WORD_LIST = ["any", "old", "well", "be", "around", "here", "part", "that", "home", "of", "and", "mean", "make", "never", "both", "might", "other", "then", "become", "head", "have", "present", "show", "govern", "world", "year", "it", "point", "line", "think", "word", "too", "feel", "interest", "on", "could", "say", "hold", "increase", "must", "the", "to", "in", "a", "is", "you", "are", "for", "with", "as", "I", "his", "they", "at", "one", "this", "from", "or", "had", "by", "not", "but", "some", "what", "there", "we", "can", "out", "all", "were", "your", "when", "up", "use", "how", "said", "an", "each", "she", "which", "do", "their", "time", "if", "will", "way", "about", "many", "then", "them", "would", "write", "like", "so", "these", "her", "long", "make", "thing", "see", "him", "two", "has", "look", "more", "day", "go", "come", "did", "my", "sound", "no", "most", "number", "who", "over", "know", "water", "than", "call", "first", "people", "may", "down", "side", "been", "now", "find"];
+const WORD_LIST = ["any", "old", "well", "be", "around", "here", "part", "that", "home", "of", "and", "mean", "make", "never", "both", "might", "other", "then", "become", "head", "have", "present", "show", "govern", "world", "year", "it", "point", "line", "think", "word", "too", "feel", "interest", "on", "could", "say", "hold", "increase", "must", "the", "to", "in", "a", "is", "you", "are", "for", "with", "as", "I", "his", "they", "at", "one", "this", "from", "or", "had", "by", "not", "but", "some", "what", "there", "we", "can", "out", "all", "were", "your", "when", "up", "use", "how", "said", "an", "each", "she", "which", "do", "their", "time", "if", "will", "way", "about", "many", "then", "them", "would", "write", "like", "so", "these", "her", "long", "make", "thing", "see", "him", "two", "has", "look", "more", "day", "go", "come", "did", "my", "sound", "no", "most", "number", "who", "over", "know", "water", "than", "call", "first", "people", "may", "down", "side", "been", "now", "find", "work", "new", "take", "get", "place", "made", "live", "where", "after", "back", "little", "only", "round", "man", "year", "came", "every", "good", "me", "give", "our", "under", "name", "very", "through", "just", "form", "sentence", "great", "think", "say", "help", "low", "line", "differ", "turn", "cause", "much", "mean", "before", "move", "right", "boy", "old", "too", "same", "tell", "does", "set", "three", "want", "air", "well", "also", "play", "small", "end", "put", "home", "read", "hand", "port", "large", "spell", "add", "even", "land", "here", "must", "big", "high", "such", "follow", "act", "why", "ask", "men", "change", "went", "light", "kind", "off", "need", "house", "picture", "try", "us", "again", "animal", "point", "mother", "world", "near", "build", "self", "earth", "father"];
 
-function generateText(count: number) {
+const HARD_WORD_LIST = [
+  "ophthalmology", "tasteless", "weathervane", "diffidence", "abounds", 
+  "caprimulgus", "blameworthy", "unify", "desirously", "stasis", 
+  "stinker", "ketch", "gotra", "sapphire", "overhear", "decortication", 
+  "gratuity", "mauser", "scarlatina", "clapper", "incision", 
+  "undersigned", "gabonese", "xylophone", "labyrinth", "quizzical", 
+  "juxtapose", "cacophony", "ephemeral", "sycophant", "ubiquitous", 
+  "obfuscate", "lugubrious", "perspicacious", "magnanimous", "fastidious", 
+  "trepidation", "mellifluous", "serendipity", "defenestration", 
+  "idiosyncrasy", "quintessential", "recalcitrant", "surreptitious", 
+  "belligerent", "clandestine", "efficacious", "gregarious", "ineffable",
+  "archetype", "bourgeoisie", "camaraderie", "dichotomy", "enfranchise",
+  "facetious", "grandiloquent", "hegemony", "iconoclast", "juxtaposition"
+];
+
+function generateText(count: number, includeNumbers: boolean = false, includePunctuation: boolean = false, difficulty: 'easy' | 'medium' | 'hard' = 'medium') {
   let result = [];
+  
+  let validWords = WORD_LIST;
+  if (difficulty === 'easy') {
+    validWords = WORD_LIST.filter(w => w.length <= 4);
+  } else if (difficulty === 'hard') {
+    validWords = HARD_WORD_LIST;
+  }
+
   for (let i = 0; i < count; i++) {
-    result.push(WORD_LIST[Math.floor(Math.random() * WORD_LIST.length)]);
+    let word = "";
+    if (includeNumbers && Math.random() < 0.15) {
+      const digits = Math.floor(Math.random() * 4) + 1;
+      word = Math.floor(Math.random() * Math.pow(10, digits)).toString();
+    } else {
+      word = validWords[Math.floor(Math.random() * validWords.length)];
+    }
+
+    if (includePunctuation) {
+      const rand = Math.random();
+      if (rand < 0.05) word = word + ",";
+      else if (rand < 0.1) word = word + ".";
+      else if (rand < 0.13) word = word + ";";
+      else if (rand < 0.16) word = word + ":";
+      else if (rand < 0.2) word = '"' + word + '"';
+      else if (rand < 0.23) word = "'" + word + "'";
+      else if (rand < 0.26) word = word + "?";
+      else if (rand < 0.29) word = word + "!";
+      else if (rand < 0.35) word = word.charAt(0).toUpperCase() + word.slice(1);
+    }
+    result.push(word);
   }
   return result.join(' ');
 }
@@ -27,8 +71,23 @@ export default function TypingPage() {
   const [mode, setMode] = useState<'time' | 'words'>('time');
   const [timeConfig, setTimeConfig] = useState(25);
   const [wordsConfig, setWordsConfig] = useState(50);
-  const [activeText, setActiveText] = useState(() => generateText(300));
+  const [includeNumbers, setIncludeNumbers] = useState(false);
+  const [includePunctuation, setIncludePunctuation] = useState(false);
+  const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium');
+  const [activeText, setActiveText] = useState(() => generateText(300, false, false, 'medium'));
+  const [showCustomModal, setShowCustomModal] = useState(false);
+  const [customInputValue, setCustomInputValue] = useState('');
   const resultSaved = useRef(false);
+  const resultsRef = useRef<HTMLDivElement>(null);
+  
+  const [wrongWordsList, setWrongWordsList] = useState<string[]>([]);
+  const [showPracticeModal, setShowPracticeModal] = useState(false);
+  const [showWordsHistory, setShowWordsHistory] = useState(false);
+  const [isReplaying, setIsReplaying] = useState(false);
+  const [replayTimeMs, setReplayTimeMs] = useState(0);
+  
+  const [ghostKeystrokes, setGhostKeystrokes] = useState<KeystrokeData[] | null>(null);
+  const [ghostTypedChars, setGhostTypedChars] = useState<string | undefined>(undefined);
 
   const {
     status,
@@ -39,7 +98,9 @@ export default function TypingPage() {
     rawWpm,
     accuracy,
     mistakes,
+    stats,
     history,
+    keystrokes,
     reset: engineReset,
   } = useTypingEngine({ 
     mode, 
@@ -49,15 +110,34 @@ export default function TypingPage() {
 
   const handleRestart = useCallback(() => {
     const wordCount = mode === 'words' ? wordsConfig : 300;
-    setActiveText(generateText(wordCount));
+    setActiveText(generateText(wordCount, includeNumbers, includePunctuation, difficulty));
     engineReset();
     resultSaved.current = false;
-  }, [mode, wordsConfig, engineReset]);
+    setIsReplaying(false);
+    setShowWordsHistory(false);
+    setGhostKeystrokes(null);
+  }, [mode, wordsConfig, includeNumbers, includePunctuation, difficulty, engineReset]);
+
+  const handleRepeat = useCallback(() => {
+    setGhostKeystrokes(keystrokes);
+    engineReset();
+    resultSaved.current = false;
+    setIsReplaying(false);
+    setShowWordsHistory(false);
+  }, [engineReset, keystrokes]);
 
   const handleModeChange = (newMode: 'time' | 'words') => {
     setMode(newMode);
     const wordCount = newMode === 'words' ? wordsConfig : 300;
-    setActiveText(generateText(wordCount));
+    setActiveText(generateText(wordCount, includeNumbers, includePunctuation, difficulty));
+    engineReset();
+    resultSaved.current = false;
+  };
+
+  const handleDifficultyChange = (newDifficulty: 'easy' | 'medium' | 'hard') => {
+    setDifficulty(newDifficulty);
+    const wordCount = mode === 'words' ? wordsConfig : 300;
+    setActiveText(generateText(wordCount, includeNumbers, includePunctuation, newDifficulty));
     engineReset();
     resultSaved.current = false;
   };
@@ -65,7 +145,7 @@ export default function TypingPage() {
   const handleTimeConfigChange = (val: number) => {
     setTimeConfig(val);
     if (mode === 'time') {
-      setActiveText(generateText(300));
+      setActiveText(generateText(300, includeNumbers, includePunctuation, difficulty));
       engineReset();
       resultSaved.current = false;
     }
@@ -74,10 +154,43 @@ export default function TypingPage() {
   const handleWordsConfigChange = (val: number) => {
     setWordsConfig(val);
     if (mode === 'words') {
-      setActiveText(generateText(val));
+      setActiveText(generateText(val, includeNumbers, includePunctuation, difficulty));
       engineReset();
       resultSaved.current = false;
     }
+  };
+
+  const handleCustomConfig = () => {
+    setCustomInputValue('');
+    setShowCustomModal(true);
+  };
+
+  const submitCustomConfig = () => {
+    const val = parseInt(customInputValue, 10);
+    if (!isNaN(val) && val > 0) {
+      if (mode === 'time') {
+        handleTimeConfigChange(val);
+      } else {
+        handleWordsConfigChange(val);
+      }
+    }
+    setShowCustomModal(false);
+  };
+
+  const toggleNumbers = () => {
+    setIncludeNumbers(!includeNumbers);
+    const wordCount = mode === 'words' ? wordsConfig : 300;
+    setActiveText(generateText(wordCount, !includeNumbers, includePunctuation, difficulty));
+    engineReset();
+    resultSaved.current = false;
+  };
+
+  const togglePunctuation = () => {
+    setIncludePunctuation(!includePunctuation);
+    const wordCount = mode === 'words' ? wordsConfig : 300;
+    setActiveText(generateText(wordCount, includeNumbers, !includePunctuation, difficulty));
+    engineReset();
+    resultSaved.current = false;
   };
 
   useEffect(() => {
@@ -98,10 +211,124 @@ export default function TypingPage() {
     }
   }, [status, wpm, rawWpm, accuracy, mistakes, timeConfig, timeElapsed, typedChars.length, mode]);
 
+  useEffect(() => {
+    if (status === 'finished') {
+      const activeWords = activeText.split(' ');
+      const typedWordsList = typedChars.split(' ');
+      const wrong: string[] = [];
+      activeWords.forEach((word, idx) => {
+        if (idx < typedWordsList.length && typedWordsList[idx] !== word) {
+          wrong.push(word);
+        }
+      });
+      setWrongWordsList(wrong);
+    }
+  }, [status, activeText, typedChars]);
+
+  useEffect(() => {
+    let animationFrameId: number;
+    let startTimestamp: number | null = null;
+    
+    if (isReplaying && keystrokes && keystrokes.length > 0) {
+      const duration = keystrokes[keystrokes.length - 1].time;
+      const playReplay = (timestamp: number) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const elapsed = (timestamp - startTimestamp) * 1.5; // Playback speed
+        setReplayTimeMs(elapsed);
+        
+        if (elapsed < duration + 500) {
+           animationFrameId = requestAnimationFrame(playReplay);
+        } else {
+           setIsReplaying(false);
+        }
+      };
+      animationFrameId = requestAnimationFrame(playReplay);
+    }
+    
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [isReplaying, keystrokes]);
+
+  const replayTypedChars = useMemo(() => {
+    if (!isReplaying) return typedChars;
+    let chars = '';
+    if (keystrokes) {
+      for (const stroke of keystrokes) {
+        if (stroke.time <= replayTimeMs) {
+          if (stroke.char === 'Backspace') {
+            chars = chars.slice(0, -1);
+          } else {
+            chars += stroke.char;
+          }
+        } else {
+          break;
+        }
+      }
+    }
+    return chars;
+  }, [isReplaying, keystrokes, replayTimeMs, typedChars]);
+
+  useEffect(() => {
+    let animationFrameId: number;
+    let startTimestamp: number | null = null;
+
+    if (status === 'running' && ghostKeystrokes) {
+      const updateGhost = (timestamp: number) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const elapsed = timestamp - startTimestamp;
+        
+        let chars = '';
+        for (const stroke of ghostKeystrokes) {
+          if (stroke.time <= elapsed) {
+            if (stroke.char === 'Backspace') chars = chars.slice(0, -1);
+            else chars += stroke.char;
+          } else {
+            break;
+          }
+        }
+        setGhostTypedChars(chars);
+        animationFrameId = requestAnimationFrame(updateGhost);
+      };
+      animationFrameId = requestAnimationFrame(updateGhost);
+    } else if (status === 'idle') {
+      if (ghostKeystrokes) setGhostTypedChars('');
+      else setGhostTypedChars(undefined);
+    }
+
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [status, ghostKeystrokes]);
+
+  const startPractice = () => {
+    if (wrongWordsList.length > 0) {
+      setActiveText(wrongWordsList.join(' '));
+      setMode('words');
+      setWordsConfig(wrongWordsList.length); // Update custom word config
+      engineReset();
+      resultSaved.current = false;
+      setIsReplaying(false);
+      setShowWordsHistory(false);
+    }
+    setShowPracticeModal(false);
+  };
+
+  const handleCopyScreenshot = async () => {
+    if (resultsRef.current) {
+      try {
+        const canvas = await html2canvas(resultsRef.current, { backgroundColor: '#1f1f1f' });
+        canvas.toBlob(blob => {
+          if (blob) {
+            navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+          }
+        });
+      } catch (err) {
+        console.error('Failed to copy screenshot', err);
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col items-center p-8 font-mono relative">
       {/* Header */}
-      <header className="w-full max-w-5xl flex justify-between items-center py-4 text-muted-foreground">
+      <header className="w-full max-w-7xl flex justify-between items-center py-4 text-muted-foreground">
         <div className="flex items-center gap-4">
           <h1 className="text-2xl font-bold tracking-tighter text-foreground flex items-center gap-2">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect><path d="M6 8h.01"></path><path d="M10 8h.01"></path><path d="M14 8h.01"></path><path d="M18 8h.01"></path><path d="M6 12h.01"></path><path d="M10 12h.01"></path><path d="M14 12h.01"></path><path d="M18 12h.01"></path><path d="M7 16h10"></path></svg>
@@ -120,15 +347,17 @@ export default function TypingPage() {
       {/* Main Settings Bar */}
       <div className={`mt-8 flex items-center justify-center bg-card rounded-xl px-6 py-2 gap-6 text-sm font-medium text-muted-foreground shadow-sm transition-opacity duration-200 ${status === 'idle' ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
         <div className="flex gap-4 items-center border-r border-border pr-6">
-          <button className="hover:text-foreground transition-colors flex items-center gap-1.5"><span className="text-primary text-xs">@</span> punctuation</button>
-          <button className="hover:text-foreground transition-colors flex items-center gap-1.5"><span className="text-primary text-xs">#</span> numbers</button>
+          <button onClick={togglePunctuation} className={`hover:text-foreground transition-colors flex items-center gap-1.5 ${includePunctuation ? 'text-primary' : ''}`}><span className="text-primary text-xs">@</span> punctuation</button>
+          <button onClick={toggleNumbers} className={`hover:text-foreground transition-colors flex items-center gap-1.5 ${includeNumbers ? 'text-primary' : ''}`}><span className="text-primary text-xs">#</span> numbers</button>
         </div>
         <div className="flex gap-4 items-center border-r border-border pr-6">
           <button onClick={() => handleModeChange('time')} className={`hover:text-foreground transition-colors flex items-center gap-1.5 ${mode === 'time' ? 'text-primary' : ''}`}><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> time</button>
           <button onClick={() => handleModeChange('words')} className={`hover:text-foreground transition-colors flex items-center gap-1.5 ${mode === 'words' ? 'text-primary' : ''}`}><span className="text-xs font-bold font-sans tracking-tight">A</span> words</button>
-          <button className="hover:text-foreground transition-colors flex items-center gap-1.5"><span className="text-xs font-serif font-black tracking-tighter">""</span> quote</button>
-          <button className="hover:text-foreground transition-colors flex items-center gap-1.5"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> zen</button>
-          <button className="hover:text-foreground transition-colors flex items-center gap-1.5"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg> custom</button>
+        </div>
+        <div className="flex gap-4 items-center border-r border-border pr-6">
+          <button onClick={() => handleDifficultyChange('easy')} className={`hover:text-foreground transition-colors flex items-center gap-1.5 ${difficulty === 'easy' ? 'text-primary' : ''}`}><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg> easy</button>
+          <button onClick={() => handleDifficultyChange('medium')} className={`hover:text-foreground transition-colors flex items-center gap-1.5 ${difficulty === 'medium' ? 'text-primary' : ''}`}><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M8 12h8"/></svg> medium</button>
+          <button onClick={() => handleDifficultyChange('hard')} className={`hover:text-foreground transition-colors flex items-center gap-1.5 ${difficulty === 'hard' ? 'text-primary' : ''}`}><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg> hard</button>
         </div>
         <div className="flex gap-4 items-center">
           {[10, 25, 50, 100].map((t) => {
@@ -136,14 +365,24 @@ export default function TypingPage() {
             return (
               <button
                 key={t}
-                onClick={() => { mode === 'time' ? handleTimeConfigChange(t) : handleWordsConfigChange(t); }}
+                onClick={() => mode === 'time' ? handleTimeConfigChange(t) : handleWordsConfigChange(t)}
                 className={`hover:text-foreground transition-colors ${isActive ? 'text-primary' : ''}`}
               >
                 {t}
               </button>
             );
           })}
-          <button className="hover:text-foreground transition-colors flex items-center"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg></button>
+          <button 
+            onClick={handleCustomConfig}
+            className={`hover:text-foreground transition-colors flex items-center gap-1.5 ${
+              ![10, 25, 50, 100].includes(mode === 'time' ? timeConfig : wordsConfig) ? 'text-primary' : ''
+            }`}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>
+            {![10, 25, 50, 100].includes(mode === 'time' ? timeConfig : wordsConfig) && (
+              <span>{mode === 'time' ? timeConfig : wordsConfig}</span>
+            )}
+          </button>
         </div>
       </div>
 
@@ -160,9 +399,10 @@ export default function TypingPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="w-full max-w-[1000px] mt-8"
+            className="w-full max-w-7xl mt-8 flex flex-col items-center"
           >
-            {/* Header Stats & Chart */}
+            <div ref={resultsRef} className="w-full bg-background pb-4 pt-4">
+              {/* Header Stats & Chart */}
             <div className="grid grid-cols-12 gap-8 w-full">
               {/* Left Stats: WPM and ACC */}
               <div className="col-span-2 flex flex-col justify-center gap-8 pr-4">
@@ -179,56 +419,140 @@ export default function TypingPage() {
               {/* Chart */}
               <div className="col-span-10 h-[250px] w-full mt-4">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={history} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                    <XAxis dataKey="time" tick={{ fill: 'hsl(var(--muted-foreground))' }} tickLine={false} axisLine={false} />
-                    <YAxis tick={{ fill: 'hsl(var(--muted-foreground))' }} tickLine={false} axisLine={false} />
+                  <ComposedChart data={history} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <XAxis dataKey="time" tick={{ fill: 'var(--muted-foreground)' }} tickLine={false} axisLine={false} />
+                    <YAxis yAxisId="left" tick={{ fill: 'var(--muted-foreground)' }} tickLine={false} axisLine={false} />
+                    <YAxis yAxisId="right" orientation="right" tick={{ fill: 'var(--destructive)' }} tickLine={false} axisLine={false} domain={[0, 'dataMax + 2']} />
                     <Tooltip 
-                      contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', borderRadius: '0.5rem' }}
-                      itemStyle={{ color: 'hsl(var(--foreground))' }}
+                      contentStyle={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', borderRadius: '0.5rem' }}
+                      itemStyle={{ color: 'var(--foreground)' }}
                     />
-                    <Line type="monotone" dataKey="wpm" stroke="hsl(var(--primary))" strokeWidth={3} dot={false} activeDot={{ r: 6 }} />
-                    <Line type="monotone" dataKey="raw" stroke="hsl(var(--muted-foreground))" strokeWidth={2} dot={false} opacity={0.5} />
-                  </LineChart>
+                    <Line yAxisId="left" type="monotone" dataKey="wpm" stroke="var(--primary)" strokeWidth={3} dot={false} activeDot={{ r: 6 }} />
+                    <Line yAxisId="left" type="monotone" dataKey="raw" stroke="var(--muted-foreground)" strokeWidth={2} dot={false} opacity={0.5} />
+                    <Scatter yAxisId="right" dataKey="errors" fill="var(--destructive)" shape="cross" />
+                  </ComposedChart>
                 </ResponsiveContainer>
               </div>
             </div>
 
             {/* Bottom Stats Row */}
-            <div className="grid grid-cols-6 gap-4 w-full mt-10 pl-2">
-              <div className="space-y-1">
+            <div className="grid grid-cols-12 gap-4 w-full mt-10 pl-2">
+              <div className="space-y-1 col-span-2">
                 <p className="text-sm text-muted-foreground">test type</p>
                 <p className="text-xl text-primary font-semibold">{mode} {mode === 'time' ? timeConfig : wordsConfig}<br/>english</p>
               </div>
-              <div className="space-y-1">
+              <div className="space-y-1 col-span-2">
                 <p className="text-sm text-muted-foreground">other</p>
                 <p className="text-xl text-foreground font-semibold">none</p>
               </div>
-              <div className="space-y-1">
+              <div className="space-y-1 col-span-2">
                 <p className="text-sm text-muted-foreground">raw</p>
                 <p className="text-4xl text-foreground font-semibold">{rawWpm}</p>
               </div>
-              <div className="space-y-1">
+              <div className="space-y-1 col-span-3">
                 <p className="text-sm text-muted-foreground">characters</p>
-                <p className="text-4xl text-foreground font-semibold">{typedChars.length}/{mistakes}/0/0</p>
+                <p className="text-4xl text-foreground font-semibold">{stats.correct}/{stats.incorrect}/{stats.extra}/{stats.missed}</p>
               </div>
-              <div className="space-y-1">
+              <div className="space-y-1 col-span-2">
                 <p className="text-sm text-muted-foreground">consistency</p>
                 <p className="text-4xl text-foreground font-semibold">0%</p>
               </div>
-              <div className="space-y-1">
+              <div className="space-y-1 col-span-1">
                 <p className="text-sm text-muted-foreground">time</p>
                 <p className="text-4xl text-foreground font-semibold">{mode === 'time' ? timeConfig : formatTime(timeElapsed)}s</p>
               </div>
             </div>
+            </div> {/* Close resultsRef */}
             
-            <div className="flex justify-center mt-16">
+            <div className="flex justify-center mt-12 gap-2 text-muted-foreground">
               <button
                 onClick={handleRestart}
-                className="text-muted-foreground hover:text-foreground transition-colors p-4"
-                title="Restart"
+                className="hover:text-foreground transition-colors p-4 hover:bg-card rounded"
+                title="Next test"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
               </button>
+              <button
+                onClick={handleRepeat}
+                className="hover:text-foreground transition-colors p-4 hover:bg-card rounded"
+                title="Repeat test"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+              </button>
+              <button
+                onClick={() => setShowPracticeModal(true)}
+                className="hover:text-foreground transition-colors p-4 hover:bg-card rounded"
+                title="Practice words"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              </button>
+              <button
+                onClick={() => { setShowWordsHistory(prev => !prev); setIsReplaying(false); }}
+                className={`transition-colors p-4 hover:bg-card rounded ${showWordsHistory ? 'text-primary' : 'hover:text-foreground'}`}
+                title="Toggle words history"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="18" y2="18"/></svg>
+              </button>
+              <button
+                onClick={() => { setIsReplaying(true); setShowWordsHistory(false); setReplayTimeMs(0); }}
+                className={`transition-colors p-4 hover:bg-card rounded ${isReplaying ? 'text-primary' : 'hover:text-foreground'}`}
+                title="Watch replay"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 19 2 12 11 5 11 19"/><polygon points="22 19 13 12 22 5 22 19"/></svg>
+              </button>
+              <button
+                onClick={handleCopyScreenshot}
+                className="hover:text-foreground transition-colors p-4 hover:bg-card rounded"
+                title="Copy screenshot"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              </button>
+            </div>
+
+            {/* Extra Sections (History / Replay) */}
+            <div className="w-full mt-8 max-w-4xl text-left">
+              {showWordsHistory && (
+                <div className="text-sm">
+                  <div className="flex items-center gap-2 mb-2 text-muted-foreground">
+                    <span>input history</span>
+                    <button onClick={() => setShowWordsHistory(false)} className="hover:text-foreground"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+                  </div>
+                  <div className="text-xl leading-relaxed opacity-80 break-words">
+                    {activeText.split(' ').slice(0, typedChars.split(' ').length).map((word, wIdx) => {
+                      const typedWordList = typedChars.split(' ');
+                      const typedWord = typedWordList[wIdx] || '';
+                      
+                      return (
+                        <span key={wIdx} className="mr-2">
+                          {word.split('').map((char, cIdx) => {
+                            const typedChar = typedWord[cIdx];
+                            let colorClass = 'text-foreground';
+                            if (typedChar === undefined) colorClass = 'text-muted-foreground/50';
+                            else if (typedChar !== char) colorClass = 'text-destructive';
+                            return <span key={cIdx} className={colorClass}>{char}</span>;
+                          })}
+                          {typedWord.length > word.length && (
+                            <span className="text-destructive opacity-70">
+                              {typedWord.slice(word.length)}
+                            </span>
+                          )}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+              {isReplaying && (
+                <div className="text-sm">
+                  <div className="flex items-center gap-2 mb-2 text-muted-foreground">
+                    <span>watch replay</span>
+                    <button onClick={() => setIsReplaying(false)} className="hover:text-foreground"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+                  </div>
+                  <div className="scale-75 origin-top-left -ml-4 mt-4 opacity-80 pointer-events-none">
+                    <TypingArea words={activeText} typedChars={replayTypedChars} />
+                  </div>
+                </div>
+              )}
             </div>
           </motion.div>
         ) : (
@@ -237,10 +561,10 @@ export default function TypingPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="w-full max-w-5xl flex flex-col items-center mt-8 relative"
+            className="w-full max-w-7xl flex flex-col items-center mt-8 relative"
           >
             {/* Timer / Word count */}
-            <div className={`w-full max-w-[1000px] text-left mb-4 transition-opacity duration-300 ${status === 'running' ? 'opacity-100' : 'opacity-0'}`}>
+            <div className={`w-full max-w-7xl text-left mb-4 transition-opacity duration-300 ${status === 'running' ? 'opacity-100' : 'opacity-0'}`}>
               <div className="text-3xl font-bold tracking-tight text-primary font-sans select-none flex items-baseline gap-1">
                 {mode === 'time' ? (
                   timeLeft
@@ -253,7 +577,7 @@ export default function TypingPage() {
               </div>
             </div>
             
-            <TypingArea words={activeText} typedChars={typedChars} />
+            <TypingArea words={activeText} typedChars={typedChars} ghostTypedChars={ghostTypedChars} />
             
             <div className={`mt-12 text-muted-foreground flex justify-center transition-opacity duration-200 ${status === 'idle' ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
               <button
@@ -275,7 +599,7 @@ export default function TypingPage() {
       </div>
 
       {/* Bottom Nav */}
-      <footer className="w-full max-w-5xl flex justify-between text-xs text-muted-foreground mb-4">
+      <footer className="w-full max-w-7xl flex justify-between text-xs text-muted-foreground mb-4">
         <div className="flex gap-4">
           <a href="#" className="hover:text-foreground transition-colors flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg> contact</a>
           <a href="#" className="hover:text-foreground transition-colors flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> support</a>
@@ -291,6 +615,100 @@ export default function TypingPage() {
           <span className="flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 10h3a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h3"/><path d="M6 4v6"/><path d="M18 4v6"/><path d="M10 2h4"/></svg> v1.0.0</span>
         </div>
       </footer>
+
+      {/* Custom Config Modal */}
+      <AnimatePresence>
+        {showCustomModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-card border border-border p-6 rounded-xl shadow-lg w-full max-w-sm flex flex-col gap-4"
+            >
+              <h3 className="text-lg font-bold text-foreground">
+                Custom {mode === 'time' ? 'Time' : 'Word'} Limit
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Enter a custom {mode === 'time' ? 'time in seconds' : 'word count'} for your test.
+              </p>
+              <input 
+                type="number" 
+                autoFocus
+                className="bg-background border border-border rounded-lg px-4 py-2 text-foreground focus:outline-none focus:border-primary transition-colors"
+                value={customInputValue}
+                onChange={(e) => setCustomInputValue(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') submitCustomConfig();
+                  if (e.key === 'Escape') setShowCustomModal(false);
+                }}
+              />
+              <div className="flex justify-end gap-2 mt-2">
+                <button 
+                  onClick={() => setShowCustomModal(false)}
+                  className="px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={submitCustomConfig}
+                  className="px-4 py-2 bg-primary text-background rounded-lg font-medium hover:opacity-90 transition-opacity"
+                >
+                  OK
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      {/* Practice Modal */}
+      <AnimatePresence>
+        {showPracticeModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-card border border-border p-6 rounded-xl shadow-lg w-full max-w-sm flex flex-col gap-4"
+            >
+              <h3 className="text-lg font-bold text-foreground">
+                Practice words
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Practice the words you missed during the test.
+                <br /><br />
+                {wrongWordsList.length === 0 ? "You didn't miss any words!" : `You missed ${wrongWordsList.length} words.`}
+              </p>
+              
+              <div className="flex justify-end gap-2 mt-4">
+                <button 
+                  onClick={() => setShowPracticeModal(false)}
+                  className="px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={startPractice}
+                  disabled={wrongWordsList.length === 0}
+                  className="px-4 py-2 bg-primary text-background rounded-lg font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Start
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

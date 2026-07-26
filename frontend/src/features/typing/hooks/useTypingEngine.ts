@@ -8,7 +8,12 @@ export interface HistoryData {
   time: number;
   wpm: number;
   raw: number;
-  errors: number;
+  errors?: number;
+}
+
+export interface KeystrokeData {
+  char: string;
+  time: number;
 }
 
 interface UseTypingEngineProps {
@@ -23,6 +28,8 @@ export const useTypingEngine = ({ mode, timeLimit, words }: UseTypingEngineProps
   const [typedChars, setTypedChars] = useState<string>('');
   const [mistakes, setMistakes] = useState(0);
   const [history, setHistory] = useState<HistoryData[]>([]);
+  const [keystrokes, setKeystrokes] = useState<KeystrokeData[]>([]);
+  const startTimeRef = useRef<number | null>(null);
 
   // Refs to keep track of current values for the interval
   const typedCharsRef = useRef(typedChars);
@@ -36,6 +43,8 @@ export const useTypingEngine = ({ mode, timeLimit, words }: UseTypingEngineProps
   const start = useCallback(() => {
     setStatus('running');
     setHistory([]);
+    setKeystrokes([]);
+    startTimeRef.current = performance.now();
   }, []);
 
   const reset = useCallback(() => {
@@ -44,6 +53,8 @@ export const useTypingEngine = ({ mode, timeLimit, words }: UseTypingEngineProps
     setTypedChars('');
     setMistakes(0);
     setHistory([]);
+    setKeystrokes([]);
+    startTimeRef.current = null;
   }, []);
 
   const handleKeyDown = useCallback(
@@ -70,11 +81,19 @@ export const useTypingEngine = ({ mode, timeLimit, words }: UseTypingEngineProps
       e.preventDefault();
 
       if (e.key === 'Backspace') {
+        if (status === 'running') {
+          setKeystrokes((prev) => [...prev, { char: 'Backspace', time: performance.now() - (startTimeRef.current || performance.now()) }]);
+        }
         setTypedChars((prev) => prev.slice(0, -1));
         return;
       }
 
       if (e.key.length === 1) {
+        if (status === 'running' || status === 'idle') {
+          const time = status === 'idle' ? 0 : performance.now() - (startTimeRef.current || performance.now());
+          setKeystrokes((prev) => [...prev, { char: e.key, time }]);
+        }
+        
         setTypedChars((prev) => {
           const nextStr = prev + e.key;
           // Count mistake if the character is wrong
@@ -104,13 +123,15 @@ export const useTypingEngine = ({ mode, timeLimit, words }: UseTypingEngineProps
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (status === 'running') {
+      let lastMistakes = mistakesRef.current;
       timer = setInterval(() => {
+        const currentTyped = typedCharsRef.current;
+        const currentMistakes = mistakesRef.current;
+        const newErrors = currentMistakes - lastMistakes;
+        lastMistakes = currentMistakes;
+
         setTimeElapsed((prev) => {
           const nextTime = prev + 1;
-          
-          // Calculate history stats at this specific second
-          const currentTyped = typedCharsRef.current;
-          const currentMistakes = mistakesRef.current;
           
           const rawWpmNow = (currentTyped.length / 5) / (nextTime / 60);
           const accuracyNow = currentTyped.length > 0 
@@ -118,12 +139,18 @@ export const useTypingEngine = ({ mode, timeLimit, words }: UseTypingEngineProps
             : 100;
           const wpmNow = Math.max(0, rawWpmNow * (accuracyNow / 100));
 
-          setHistory(h => [...h, {
-            time: nextTime,
-            wpm: Math.round(wpmNow),
-            raw: Math.round(rawWpmNow),
-            errors: currentMistakes // Total errors so far, or can compute diff if needed
-          }]);
+          setHistory(h => {
+            // Prevent duplicate history entries for the same second (Strict Mode issue)
+            if (h.length > 0 && h[h.length - 1].time === nextTime) {
+              return h;
+            }
+            return [...h, {
+              time: nextTime,
+              wpm: Math.round(wpmNow),
+              raw: Math.round(rawWpmNow),
+              errors: newErrors > 0 ? newErrors : undefined
+            }];
+          });
           
           return nextTime;
         });
@@ -138,19 +165,55 @@ export const useTypingEngine = ({ mode, timeLimit, words }: UseTypingEngineProps
     }
   }, [status, mode, timeElapsed, timeLimit]);
 
-  // Calculations
+  let correctChars = 0;
+  let incorrectChars = 0;
+  let extraChars = 0;
+  let missedChars = 0;
+
+  const actualWords = words.split(' ');
+  const typedWordsList = typedChars.split(' ');
+
+  for (let i = 0; i < typedWordsList.length; i++) {
+    const actualWord = actualWords[i] || '';
+    const typedWord = typedWordsList[i];
+
+    for (let j = 0; j < Math.max(actualWord.length, typedWord.length); j++) {
+      if (j < actualWord.length && j < typedWord.length) {
+        if (actualWord[j] === typedWord[j]) {
+          correctChars++;
+        } else {
+          incorrectChars++;
+        }
+      } else if (j >= actualWord.length) {
+        extraChars++;
+      } else if (j >= typedWord.length) {
+        if (i < typedWordsList.length - 1) {
+           missedChars++;
+        }
+      }
+    }
+    // Correct spaces are added to correctChars
+    if (i < typedWordsList.length - 1) {
+      correctChars++;
+    }
+  }
+
   const timeForCalc = timeElapsed === 0 ? 1 : timeElapsed;
+  
   const rawWpm =
     status === 'finished' || timeElapsed > 0
-      ? (typedChars.length / 5 / (timeForCalc / 60)) || 0
+      ? ((correctChars + incorrectChars + extraChars) / 5 / (timeForCalc / 60)) || 0
+      : 0;
+
+  const wpmCalc =
+    status === 'finished' || timeElapsed > 0
+      ? (correctChars / 5 / (timeForCalc / 60)) || 0
       : 0;
       
   const accuracy = 
-    typedChars.length > 0 
-      ? Math.max(0, ((typedChars.length - mistakes) / typedChars.length) * 100)
+    (correctChars + incorrectChars + extraChars + missedChars) > 0 
+      ? Math.max(0, (correctChars / (correctChars + incorrectChars + extraChars + missedChars)) * 100)
       : 100;
-
-  const wpm = Math.max(0, rawWpm * (accuracy / 100));
 
   return {
     status,
@@ -158,10 +221,12 @@ export const useTypingEngine = ({ mode, timeLimit, words }: UseTypingEngineProps
     timeLeft: mode === 'time' ? Math.max(0, timeLimit - timeElapsed) : 0,
     typedChars,
     mistakes,
-    wpm: Math.round(wpm),
+    wpm: Math.round(wpmCalc),
     rawWpm: Math.round(rawWpm),
     accuracy: Math.round(accuracy),
+    stats: { correct: correctChars, incorrect: incorrectChars, extra: extraChars, missed: missedChars },
     history,
+    keystrokes,
     reset,
   };
 };
