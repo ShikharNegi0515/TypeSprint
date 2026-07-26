@@ -3,14 +3,23 @@ import { api } from '../../../lib/axios';
 import { useSelector } from 'react-redux';
 import { type RootState } from '../../../store';
 import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { logout } from '../../../store/slices/authSlice';
 import { motion } from 'framer-motion';
 
 export default function ProfilePage() {
   const user = useSelector((state: RootState) => state.auth.user);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [stats, setStats] = useState<any>(null);
   const [analytics, setAnalytics] = useState<any[]>([]);
   const [achievements, setAchievements] = useState<any[]>([]);
+
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate('/');
+  };
 
   useEffect(() => {
     async function fetchData() {
@@ -41,6 +50,7 @@ export default function ProfilePage() {
           <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">
             {user?.username?.charAt(0).toUpperCase()}
           </div>
+          <button onClick={handleLogout} className="hover:text-foreground transition-colors text-muted-foreground ml-2" title="Logout"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
         </div>
       </div>
 

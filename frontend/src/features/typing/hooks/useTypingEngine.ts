@@ -215,6 +215,32 @@ export const useTypingEngine = ({ mode, timeLimit, words }: UseTypingEngineProps
       ? Math.max(0, (correctChars / (correctChars + incorrectChars + extraChars + missedChars)) * 100)
       : 100;
 
+  const rawWpmPerSec: number[] = [];
+  let currentSecKeystrokes = 0;
+  let currentSec = 1;
+  keystrokes.forEach((k) => {
+    while (k.time > currentSec * 1000) {
+      rawWpmPerSec.push((currentSecKeystrokes / 5) * 60);
+      currentSecKeystrokes = 0;
+      currentSec++;
+    }
+    currentSecKeystrokes++;
+  });
+  if (timeElapsed > 0 && currentSecKeystrokes > 0) {
+    rawWpmPerSec.push((currentSecKeystrokes / 5) * 60);
+  }
+
+  let consistency = 0;
+  if (rawWpmPerSec.length > 1) {
+    const mean = rawWpmPerSec.reduce((a, b) => a + b, 0) / rawWpmPerSec.length;
+    const variance = rawWpmPerSec.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / rawWpmPerSec.length;
+    const stdDev = Math.sqrt(variance);
+    const cv = mean === 0 ? 0 : stdDev / mean;
+    consistency = Math.max(0, Math.min(100, Math.round((1 - cv) * 100)));
+  } else if (rawWpmPerSec.length === 1) {
+    consistency = 100;
+  }
+
   return {
     status,
     timeElapsed,
@@ -224,6 +250,7 @@ export const useTypingEngine = ({ mode, timeLimit, words }: UseTypingEngineProps
     wpm: Math.round(wpmCalc),
     rawWpm: Math.round(rawWpm),
     accuracy: Math.round(accuracy),
+    consistency,
     stats: { correct: correctChars, incorrect: incorrectChars, extra: extraChars, missed: missedChars },
     history,
     keystrokes,

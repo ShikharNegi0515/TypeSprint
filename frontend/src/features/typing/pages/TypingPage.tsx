@@ -6,6 +6,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../../../lib/axios';
 import { useNavigate } from 'react-router-dom';
 import { ComposedChart, Line, Scatter, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { useDispatch } from 'react-redux';
+import { logout } from '../../../store/slices/authSlice';
 
 const WORD_LIST = ["any", "old", "well", "be", "around", "here", "part", "that", "home", "of", "and", "mean", "make", "never", "both", "might", "other", "then", "become", "head", "have", "present", "show", "govern", "world", "year", "it", "point", "line", "think", "word", "too", "feel", "interest", "on", "could", "say", "hold", "increase", "must", "the", "to", "in", "a", "is", "you", "are", "for", "with", "as", "I", "his", "they", "at", "one", "this", "from", "or", "had", "by", "not", "but", "some", "what", "there", "we", "can", "out", "all", "were", "your", "when", "up", "use", "how", "said", "an", "each", "she", "which", "do", "their", "time", "if", "will", "way", "about", "many", "then", "them", "would", "write", "like", "so", "these", "her", "long", "make", "thing", "see", "him", "two", "has", "look", "more", "day", "go", "come", "did", "my", "sound", "no", "most", "number", "who", "over", "know", "water", "than", "call", "first", "people", "may", "down", "side", "been", "now", "find", "work", "new", "take", "get", "place", "made", "live", "where", "after", "back", "little", "only", "round", "man", "year", "came", "every", "good", "me", "give", "our", "under", "name", "very", "through", "just", "form", "sentence", "great", "think", "say", "help", "low", "line", "differ", "turn", "cause", "much", "mean", "before", "move", "right", "boy", "old", "too", "same", "tell", "does", "set", "three", "want", "air", "well", "also", "play", "small", "end", "put", "home", "read", "hand", "port", "large", "spell", "add", "even", "land", "here", "must", "big", "high", "such", "follow", "act", "why", "ask", "men", "change", "went", "light", "kind", "off", "need", "house", "picture", "try", "us", "again", "animal", "point", "mother", "world", "near", "build", "self", "earth", "father"];
 
@@ -68,6 +70,7 @@ function formatTime(seconds: number) {
 
 export default function TypingPage() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [mode, setMode] = useState<'time' | 'words'>('time');
   const [timeConfig, setTimeConfig] = useState(25);
   const [wordsConfig, setWordsConfig] = useState(50);
@@ -100,6 +103,7 @@ export default function TypingPage() {
     mistakes,
     stats,
     history,
+    consistency,
     keystrokes,
     reset: engineReset,
   } = useTypingEngine({ 
@@ -325,6 +329,11 @@ export default function TypingPage() {
     }
   };
 
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate('/');
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col items-center p-8 font-mono relative">
       {/* Header */}
@@ -340,7 +349,8 @@ export default function TypingPage() {
         </div>
         <div className="flex items-center gap-4">
           <button className="hover:text-foreground transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></button>
-          <button onClick={() => navigate('/profile')} className="hover:text-foreground transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
+          <button onClick={() => navigate('/profile')} className="hover:text-foreground transition-colors" title="Profile"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
+          <button onClick={handleLogout} className="hover:text-foreground transition-colors" title="Logout"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
         </div>
       </header>
 
@@ -455,7 +465,7 @@ export default function TypingPage() {
               </div>
               <div className="space-y-1 col-span-2">
                 <p className="text-sm text-muted-foreground">consistency</p>
-                <p className="text-4xl text-foreground font-semibold">0%</p>
+                <p className="text-4xl text-foreground font-semibold">{consistency}%</p>
               </div>
               <div className="space-y-1 col-span-1">
                 <p className="text-sm text-muted-foreground">time</p>
@@ -518,9 +528,14 @@ export default function TypingPage() {
                     <button onClick={() => setShowWordsHistory(false)} className="hover:text-foreground"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
                   </div>
                   <div className="text-xl leading-relaxed opacity-80 break-words">
-                    {activeText.split(' ').slice(0, typedChars.split(' ').length).map((word, wIdx) => {
+                    {activeText.split(' ').slice(0, typedChars.length > 0 ? typedChars.trimEnd().split(' ').length : 0).map((word, wIdx) => {
                       const typedWordList = typedChars.split(' ');
                       const typedWord = typedWordList[wIdx] || '';
+                      
+                      // Do not render if they haven't typed anything for this word yet
+                      if (wIdx === typedWordList.length - 1 && typedWord === '') {
+                        return null;
+                      }
                       
                       return (
                         <span key={wIdx} className="mr-2">
