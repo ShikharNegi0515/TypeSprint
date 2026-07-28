@@ -17,14 +17,14 @@ export class UsersService {
     if (existingUser) {
       throw new ConflictException('Email already exists');
     }
-    
+
     const existingUsername = await this.findByUsername(createUserDto.username);
     if (existingUsername) {
       throw new ConflictException('Username already exists');
     }
 
-    const hashedPassword = createUserDto.password 
-      ? await bcrypt.hash(createUserDto.password, 10) 
+    const hashedPassword = createUserDto.password
+      ? await bcrypt.hash(createUserDto.password, 10)
       : undefined;
 
     const user = this.usersRepository.create({
@@ -47,7 +47,12 @@ export class UsersService {
     return this.usersRepository.findOne({ where: { id } });
   }
 
-  async createOAuthUser(profile: { email: string; username: string; googleId: string; avatar?: string }): Promise<User> {
+  async createOAuthUser(profile: {
+    email: string;
+    username: string;
+    googleId: string;
+    avatar?: string;
+  }): Promise<User> {
     const user = this.usersRepository.create({
       email: profile.email,
       username: profile.username,
@@ -55,5 +60,9 @@ export class UsersService {
       avatar: profile.avatar,
     });
     return this.usersRepository.save(user);
+  }
+
+  async updateGoogleId(userId: string, googleId: string): Promise<void> {
+    await this.usersRepository.update(userId, { googleId });
   }
 }

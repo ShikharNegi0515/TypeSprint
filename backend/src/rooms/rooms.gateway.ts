@@ -23,7 +23,10 @@ export class RoomsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private readonly logger = new Logger(RoomsGateway.name);
 
   // Track socket -> room+user mapping for disconnect cleanup
-  private socketMap = new Map<string, { roomId: string; userId: string; username: string }>();
+  private socketMap = new Map<
+    string,
+    { roomId: string; userId: string; username: string }
+  >();
 
   constructor(private readonly roomsService: RoomsService) {}
 
@@ -48,7 +51,8 @@ export class RoomsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('room:join')
   async handleJoin(
     @ConnectedSocket() client: Socket,
-    @MessageBody() payload: { roomCode: string; userId: string; username: string },
+    @MessageBody()
+    payload: { roomCode: string; userId: string; username: string },
   ) {
     try {
       const room = await this.roomsService.getRoomByCode(payload.roomCode);
@@ -76,7 +80,9 @@ export class RoomsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       });
 
       // Tell everyone else someone joined
-      client.to(room.id).emit('room:player_joined', { username: payload.username });
+      client
+        .to(room.id)
+        .emit('room:player_joined', { username: payload.username });
       this.server.to(room.id).emit('room:participants', participants);
     } catch (err: any) {
       client.emit('room:error', { message: err.message });
@@ -91,23 +97,35 @@ export class RoomsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     const room = await this.roomsService.getRoomById(payload.roomId);
     if (room.hostId !== payload.userId) {
-      client.emit('room:error', { message: 'Only the host can start the game' });
+      client.emit('room:error', {
+        message: 'Only the host can start the game',
+      });
       return;
     }
 
     // 3-second countdown
-    await this.roomsService.updateRoomStatus(payload.roomId, RoomStatus.COUNTDOWN);
+    await this.roomsService.updateRoomStatus(
+      payload.roomId,
+      RoomStatus.COUNTDOWN,
+    );
     this.server.to(payload.roomId).emit('room:countdown', { seconds: 3 });
 
     let count = 3;
     const interval = setInterval(async () => {
       count--;
       if (count > 0) {
-        this.server.to(payload.roomId).emit('room:countdown', { seconds: count });
+        this.server
+          .to(payload.roomId)
+          .emit('room:countdown', { seconds: count });
       } else {
         clearInterval(interval);
-        await this.roomsService.updateRoomStatus(payload.roomId, RoomStatus.PLAYING);
-        this.server.to(payload.roomId).emit('room:started', { text: room.text });
+        await this.roomsService.updateRoomStatus(
+          payload.roomId,
+          RoomStatus.PLAYING,
+        );
+        this.server
+          .to(payload.roomId)
+          .emit('room:started', { text: room.text });
       }
     }, 1000);
   }
@@ -116,7 +134,8 @@ export class RoomsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('room:progress')
   async handleProgress(
     @ConnectedSocket() client: Socket,
-    @MessageBody() payload: { roomId: string; userId: string; progress: number; wpm: number },
+    @MessageBody()
+    payload: { roomId: string; userId: string; progress: number; wpm: number },
   ) {
     const participant = await this.roomsService.updateProgress(
       payload.roomId,
@@ -137,10 +156,15 @@ export class RoomsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     });
 
     if (participant.isFinished) {
-      const participants = await this.roomsService.getParticipants(payload.roomId);
+      const participants = await this.roomsService.getParticipants(
+        payload.roomId,
+      );
       const allDone = participants.every((p) => p.isFinished);
       if (allDone) {
-        await this.roomsService.updateRoomStatus(payload.roomId, RoomStatus.FINISHED);
+        await this.roomsService.updateRoomStatus(
+          payload.roomId,
+          RoomStatus.FINISHED,
+        );
         this.server.to(payload.roomId).emit('room:finished', { participants });
       }
     }
@@ -150,7 +174,8 @@ export class RoomsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('room:chat')
   handleChat(
     @ConnectedSocket() client: Socket,
-    @MessageBody() payload: { roomId: string; username: string; message: string },
+    @MessageBody()
+    payload: { roomId: string; username: string; message: string },
   ) {
     this.server.to(payload.roomId).emit('room:chat_message', {
       username: payload.username,
@@ -167,13 +192,19 @@ export class RoomsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     const room = await this.roomsService.getRoomById(payload.roomId);
     if (room.hostId !== payload.userId) {
-      client.emit('room:error', { message: 'Only the host can request a rematch' });
+      client.emit('room:error', {
+        message: 'Only the host can request a rematch',
+      });
       return;
     }
 
     await this.roomsService.resetRoom(payload.roomId);
     const updatedRoom = await this.roomsService.getRoomById(payload.roomId);
-    const participants = await this.roomsService.getParticipants(payload.roomId);
-    this.server.to(payload.roomId).emit('room:rematch', { room: updatedRoom, participants });
+    const participants = await this.roomsService.getParticipants(
+      payload.roomId,
+    );
+    this.server
+      .to(payload.roomId)
+      .emit('room:rematch', { room: updatedRoom, participants });
   }
 }

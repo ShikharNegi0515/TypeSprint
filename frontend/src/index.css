@@ -79,27 +79,88 @@
     --ring: #bd93f9;
   }
 
+  /* ── Nord Theme ─────────────────────────────────────────────────────────
+   *  Polar Night:  #2e3440 (N0) · #3b4252 (N1) · #434c5e (N2) · #4c566a (N3)
+   *  Snow Storm:   #d8dee9 (N4) · #e5e9f0 (N5) · #eceff4 (N6)
+   *  Frost:        #8fbcbb (F0) · #88c0d0 (F1) · #81a1c1 (F2) · #5e81ac (F3)
+   *  Aurora:       #bf616a (red) · #d08770 (orange) · #ebcb8b (yellow)
+   *               #a3be8c (green) · #b48ead (purple)
+   * ─────────────────────────────────────────────────────────────────────── */
   .theme-nord {
-    --background: #2e3440;
-    --foreground: #eceff4;
-    --card: #3b4252;
-    --card-foreground: #eceff4;
-    --popover: #3b4252;
-    --popover-foreground: #eceff4;
-    --primary: #88c0d0;
-    --primary-foreground: #2e3440;
-    --secondary: #3b4252;
-    --secondary-foreground: #eceff4;
-    --muted: #3b4252;
-    --muted-foreground: #4c566a;
-    --accent: #3b4252;
-    --accent-foreground: #88c0d0;
-    --destructive: #bf616a;
-    --destructive-foreground: #ffffff;
-    --border: #3b4252;
-    --input: #3b4252;
-    --ring: #88c0d0;
+    /* Backgrounds — 3-layer depth using Polar Night */
+    --background:        #242933;   /* deeper than N0 so cards lift off */
+    --card:              #2e3440;   /* N0 — main card surface            */
+    --popover:           #3b4252;   /* N1 — overlays / dropdowns         */
+
+    /* Text — Snow Storm hierarchy */
+    --foreground:        #eceff4;   /* N6 — primary text                 */
+    --card-foreground:   #e5e9f0;   /* N5                                */
+    --popover-foreground:#eceff4;
+
+    /* Primary — Frost 1 (the iconic Nord blue) */
+    --primary:           #88c0d0;
+    --primary-foreground:#242933;
+
+    /* Secondary — Nord 2 (distinct step above card) */
+    --secondary:         #434c5e;
+    --secondary-foreground: #d8dee9;
+
+    /* Muted — legible mid-tone instead of near-black */
+    --muted:             #3b4252;   /* N1 */
+    --muted-foreground:  #8a93a8;   /* midpoint N3→N4: readable on card  */
+
+    /* Accent — Frost 2 (softer blue, different from primary) */
+    --accent:            #81a1c1;
+    --accent-foreground: #eceff4;
+
+    /* Aurora red for errors */
+    --destructive:       #bf616a;
+    --destructive-foreground: #eceff4;
+
+    /* Borders — N2, now VISIBLE against N0 cards */
+    --border:            #434c5e;
+    --input:             #3b4252;
+
+    /* Ring — Frost 3 (deep blue, distinct focus ring) */
+    --ring:              #5e81ac;
+
+    --radius: 0.625rem;
   }
+
+  /* ── Nord-specific ambient effects ─────────────────────────────────────── */
+
+  /* Subtle aurora gradient breathes in the background */
+  .theme-nord body {
+    background-image:
+      radial-gradient(ellipse 80% 40% at 20% 0%,   rgba(94,129,172,0.08)  0%, transparent 60%),
+      radial-gradient(ellipse 60% 30% at 80% 100%,  rgba(136,192,208,0.07) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 60% at 50% 50%,   rgba(163,190,140,0.03) 0%, transparent 70%);
+    background-attachment: fixed;
+  }
+
+  /* Cards get a subtle top-edge frost shimmer */
+  .theme-nord .bg-card {
+    background-image: linear-gradient(
+      180deg,
+      rgba(136,192,208,0.04) 0%,
+      transparent 40px
+    );
+  }
+
+  /* Primary-colored glow on focus rings */
+  .theme-nord :focus-visible {
+    outline-color: #5e81ac;
+    box-shadow: 0 0 0 3px rgba(94,129,172,0.25);
+  }
+
+  /* Scrollbar — frosted Nord style */
+  .theme-nord ::-webkit-scrollbar { width: 6px; }
+  .theme-nord ::-webkit-scrollbar-track { background: #2e3440; }
+  .theme-nord ::-webkit-scrollbar-thumb {
+    background: #434c5e;
+    border-radius: 99px;
+  }
+  .theme-nord ::-webkit-scrollbar-thumb:hover { background: #88c0d0; }
 
   .theme-matrix {
     --background: #0d0208;

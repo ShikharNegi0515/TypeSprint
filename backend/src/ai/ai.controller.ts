@@ -10,7 +10,9 @@ export class AiController {
   constructor(private readonly aiService: AiService) {}
 
   @Get('generate')
-  @ApiOperation({ summary: 'Generate an AI typing text by category and difficulty' })
+  @ApiOperation({
+    summary: 'Generate an AI typing text by category and difficulty',
+  })
   generate(@Query() dto: GenerateTextDto) {
     return this.aiService.generateText(dto);
   }

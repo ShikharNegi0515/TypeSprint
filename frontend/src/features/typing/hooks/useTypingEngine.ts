@@ -141,7 +141,7 @@ export const useTypingEngine = ({ mode, timeLimit, words, isEnabled = true }: Us
         }
       }
     },
-    [status, words, typedChars.length, start]
+    [isEnabled, status, words, typedChars.length, start]
   );
 
   useEffect(() => {

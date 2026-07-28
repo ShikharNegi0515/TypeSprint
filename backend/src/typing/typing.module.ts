@@ -7,7 +7,10 @@ import { TestResult } from './entities/test-result.entity';
 import { AchievementsModule } from '../achievements/achievements.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([TypingTest, TestResult]), AchievementsModule],
+  imports: [
+    TypeOrmModule.forFeature([TypingTest, TestResult]),
+    AchievementsModule,
+  ],
   controllers: [TypingController],
   providers: [TypingService],
   exports: [TypingService],

@@ -219,13 +219,7 @@ export const TypingArea: React.FC<TypingAreaProps> = ({ words, typedChars, ghost
             }
           }
           
-          // Add space at the end of the word
-          const isCurrentSpace = isCurrentWord && typedWord?.length === maxLen && maxLen > actualWord.length;
-          // Note: caret handling for the space is tricky. If we are exactly at the end of the correct word, the caret should be on the space.
-          // Wait, if typedWord === actualWord, cIdx will reach actualWord.length. The loop goes up to maxLen, so if maxLen == actualWord.length, cIdx reaches actualWord.length.
-          // In that case, `cIdx < actualWord.length` is false, `cIdx < typedWord.length` is false, it falls to the third branch and renders phantom span.
-          // This is fine. But we also have an actual space character that belongs to the string.
-          // Let's render the space.
+          // Add space at the end of the word (caret handled by the phantom span in the loop above)
           
           return (
             <div key={wIdx} className="inline-block mr-0">

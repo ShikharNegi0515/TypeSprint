@@ -12,7 +12,10 @@ export class TypingController {
 
   @Post('results')
   @ApiOperation({ summary: 'Save a typing test result' })
-  async saveResult(@CurrentUser() user: any, @Body() createTestResultDto: CreateTestResultDto) {
+  async saveResult(
+    @CurrentUser() user: any,
+    @Body() createTestResultDto: CreateTestResultDto,
+  ) {
     return this.typingService.saveResult(user.id, createTestResultDto);
   }
 

@@ -9,11 +9,15 @@ export class AiService {
 
   constructor(private readonly aiProvider: AiProvider) {}
 
-  async generateText(dto: GenerateTextDto): Promise<{ text: string; category: string; difficulty: string }> {
+  async generateText(
+    dto: GenerateTextDto,
+  ): Promise<{ text: string; category: string; difficulty: string }> {
     const category = dto.category || AiCategory.GENERAL;
     const difficulty = dto.difficulty || AiDifficulty.MEDIUM;
 
-    this.logger.log(`Generating text: category=${category}, difficulty=${difficulty}`);
+    this.logger.log(
+      `Generating text: category=${category}, difficulty=${difficulty}`,
+    );
 
     const text = await this.aiProvider.generateText(category, difficulty);
 

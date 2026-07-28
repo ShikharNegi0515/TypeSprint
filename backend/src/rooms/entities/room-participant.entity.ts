@@ -26,7 +26,13 @@ export class RoomParticipant {
   @Column({ name: 'socket_id' })
   socketId: string;
 
-  @Column({ name: 'progress', type: 'decimal', precision: 5, scale: 2, default: 0 })
+  @Column({
+    name: 'progress',
+    type: 'decimal',
+    precision: 5,
+    scale: 2,
+    default: 0,
+  })
   progress: number;
 
   @Column({ nullable: true, type: 'decimal', precision: 5, scale: 2 })

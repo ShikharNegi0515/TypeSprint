@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Room } from './entities/room.entity';
@@ -7,10 +11,10 @@ import { RoomStatus } from './enums/room-status.enum';
 import { CreateRoomDto } from './dto/create-room.dto';
 
 const SAMPLE_TEXTS = [
-  "the quick brown fox jumps over the lazy dog while the sun sets behind the mountains casting long shadows across the valley floor",
-  "programming is the art of telling another human what one wants the computer to do in a way that even a machine can understand it",
-  "the only way to do great work is to love what you do if you have not found it yet keep looking do not settle as with all matters of the heart you will know when you find it",
-  "in the beginning was the word and the word was with code and the code was a function that returned the meaning of life",
+  'the quick brown fox jumps over the lazy dog while the sun sets behind the mountains casting long shadows across the valley floor',
+  'programming is the art of telling another human what one wants the computer to do in a way that even a machine can understand it',
+  'the only way to do great work is to love what you do if you have not found it yet keep looking do not settle as with all matters of the heart you will know when you find it',
+  'in the beginning was the word and the word was with code and the code was a function that returned the meaning of life',
 ];
 
 function generateRoomCode(): string {
@@ -28,7 +32,9 @@ export class RoomsService {
 
   async createRoom(userId: string, dto: CreateRoomDto): Promise<Room> {
     const code = generateRoomCode();
-    const text = dto.customText || SAMPLE_TEXTS[Math.floor(Math.random() * SAMPLE_TEXTS.length)];
+    const text =
+      dto.customText ||
+      SAMPLE_TEXTS[Math.floor(Math.random() * SAMPLE_TEXTS.length)];
 
     const room = this.roomRepository.create({
       code,
@@ -138,7 +144,13 @@ export class RoomsService {
     });
     await this.participantRepository.update(
       { room: { id: roomId } },
-      { progress: 0, wpm: undefined, accuracy: undefined, isFinished: false, finishRank: undefined },
+      {
+        progress: 0,
+        wpm: undefined,
+        accuracy: undefined,
+        isFinished: false,
+        finishRank: undefined,
+      },
     );
   }
 }

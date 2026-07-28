@@ -476,7 +476,7 @@ export default function TypingPage() {
                 </div>
                 <div className="space-y-1 col-span-1">
                   <p className="text-sm text-muted-foreground">time</p>
-                  <p className="text-4xl text-foreground font-semibold">{mode === 'time' ? timeConfig : formatTime(timeElapsed)}s</p>
+                  <p className="text-4xl text-foreground font-semibold">{mode === 'time' ? `${timeConfig}s` : formatTime(timeElapsed)}</p>
                 </div>
               </div>
             </div> {/* Close resultsRef */}
@@ -592,7 +592,7 @@ export default function TypingPage() {
                   timeLeft
                 ) : (
                   <>
-                    <span>{typedChars.split(' ').length}</span>
+                    <span>{typedChars.length > 0 ? typedChars.split(' ').length : 0}</span>
                     <span className="text-muted-foreground/50 text-xl font-medium">/ {wordsConfig}</span>
                   </>
                 )}

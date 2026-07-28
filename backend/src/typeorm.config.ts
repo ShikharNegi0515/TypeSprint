@@ -17,7 +17,14 @@ export const dataSourceOptions: DataSourceOptions = {
   username: process.env.DB_USER || 'postgres',
   password: process.env.DB_PASSWORD || 'postgres',
   database: process.env.DB_NAME || 'typesprint',
-  entities: [User, TypingTest, TestResult, Room, RoomParticipant, UserAchievement],
+  entities: [
+    User,
+    TypingTest,
+    TestResult,
+    Room,
+    RoomParticipant,
+    UserAchievement,
+  ],
   migrations: [__dirname + '/migrations/*{.ts,.js}'],
   synchronize: false, // Critical: Turned off for production safety
 };

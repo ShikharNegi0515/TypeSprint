@@ -14,7 +14,7 @@ export class AuthService {
 
   async register(registerDto: RegisterDto) {
     const user = await this.usersService.create(registerDto);
-    
+
     return this.generateToken(user);
   }
 
@@ -41,24 +41,31 @@ export class AuthService {
         username: user.username,
         email: user.email,
         role: user.role,
-      }
+      },
     };
   }
 
-  async validateOAuthUser(profile: { googleId: string; email: string; username: string; avatar: string }) {
-    let user = await this.usersService.findByEmail(profile.email);
+  async validateOAuthUser(profile: {
+    googleId: string;
+    email: string;
+    username: string;
+    avatar: string;
+  }) {
+    const user = await this.usersService.findByEmail(profile.email);
 
     if (user) {
       if (!user.googleId) {
-        // We really should save the googleId here, but we need the repo or a service method
-        // Since we don't have update user method, we'll assume the user is valid.
+        // Link the Google account to the existing user
+        await this.usersService.updateGoogleId(user.id, profile.googleId);
       }
       return user;
     }
 
     return this.usersService.createOAuthUser({
       email: profile.email,
-      username: profile.username.replace(/\s+/g, '').toLowerCase() + Math.floor(Math.random() * 1000),
+      username:
+        profile.username.replace(/\s+/g, '').toLowerCase() +
+        Math.floor(Math.random() * 1000),
       googleId: profile.googleId,
       avatar: profile.avatar,
     });
