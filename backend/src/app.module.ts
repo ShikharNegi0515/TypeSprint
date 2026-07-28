@@ -17,6 +17,9 @@ import { RoomParticipant } from './rooms/entities/room-participant.entity';
 import { AiModule } from './ai/ai.module';
 import { AchievementsModule } from './achievements/achievements.module';
 import { UserAchievement } from './achievements/entities/user-achievement.entity';
+import { DailyChallengeModule } from './daily-challenge/daily-challenge.module';
+import { DailyChallenge } from './daily-challenge/entities/daily-challenge.entity';
+import { DailyChallengeResult } from './daily-challenge/entities/daily-challenge-result.entity';
 
 @Module({
   imports: [
@@ -40,6 +43,8 @@ import { UserAchievement } from './achievements/entities/user-achievement.entity
           Room,
           RoomParticipant,
           UserAchievement,
+          DailyChallenge,
+          DailyChallengeResult,
         ],
         migrations: [__dirname + '/migrations/*{.ts,.js}'],
         synchronize: true,
@@ -51,6 +56,7 @@ import { UserAchievement } from './achievements/entities/user-achievement.entity
     RoomsModule,
     AiModule,
     AchievementsModule,
+    DailyChallengeModule,
   ],
   controllers: [AppController],
   providers: [

@@ -46,6 +46,8 @@ export class TypingService {
       accuracy: createTestResultDto.accuracy,
       duration: createTestResultDto.duration,
       totalTests,
+      mistakes: createTestResultDto.mistakes ?? 0,
+      characterCount: createTestResultDto.characterCount ?? 0,
     });
 
     return savedResult;

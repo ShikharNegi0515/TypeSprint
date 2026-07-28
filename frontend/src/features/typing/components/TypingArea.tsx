@@ -181,8 +181,8 @@ export const TypingArea: React.FC<TypingAreaProps> = ({ words, typedChars, ghost
                   typedChar={typedWord?.[cIdx]}
                   ghostChar={ghostWord?.[cIdx]}
                   isExtra={false}
-                  isCurrent={isCurrentChar}
-                  isGhostCurrent={isGhostCurrentChar}
+                  isCurrent={isCurrentChar ?? false}
+                  isGhostCurrent={isGhostCurrentChar ?? false}
                   setCurrentRef={setCurrentRef}
                   setGhostCurrentRef={setGhostCurrentRef}
                 />
@@ -196,8 +196,8 @@ export const TypingArea: React.FC<TypingAreaProps> = ({ words, typedChars, ghost
                   typedChar={typedWord?.[cIdx]}
                   ghostChar={ghostWord?.[cIdx]}
                   isExtra={true}
-                  isCurrent={isCurrentChar}
-                  isGhostCurrent={isGhostCurrentChar}
+                  isCurrent={isCurrentChar ?? false}
+                  isGhostCurrent={isGhostCurrentChar ?? false}
                   setCurrentRef={setCurrentRef}
                   setGhostCurrentRef={setGhostCurrentRef}
                 />

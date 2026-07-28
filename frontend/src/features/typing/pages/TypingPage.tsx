@@ -92,6 +92,18 @@ export default function TypingPage() {
   const [ghostKeystrokes, setGhostKeystrokes] = useState<KeystrokeData[] | null>(null);
   const [ghostTypedChars, setGhostTypedChars] = useState<string | undefined>(undefined);
 
+  // ── Personal-Best ghost ──────────────────────────────────────────────────
+  const [pbWpm, setPbWpm] = useState<number>(() => Number(localStorage.getItem('pb_wpm') || 0));
+  const [pbGhostEnabled, setPbGhostEnabled] = useState<boolean>(() =>
+    localStorage.getItem('pb_ghost_enabled') !== 'false'
+  );
+  const [pbGhostKeystrokes] = useState<KeystrokeData[] | null>(() => {
+    try {
+      const raw = localStorage.getItem('pb_ghost_keystrokes');
+      return raw ? (JSON.parse(raw) as KeystrokeData[]) : null;
+    } catch { return null; }
+  });
+
   const {
     status,
     timeElapsed,
@@ -120,8 +132,9 @@ export default function TypingPage() {
     resultSaved.current = false;
     setIsReplaying(false);
     setShowWordsHistory(false);
-    setGhostKeystrokes(null);
-  }, [mode, wordsConfig, includeNumbers, includePunctuation, difficulty, engineReset]);
+    // Load PB ghost automatically if enabled and available
+    setGhostKeystrokes(pbGhostEnabled && pbGhostKeystrokes ? pbGhostKeystrokes : null);
+  }, [mode, wordsConfig, includeNumbers, includePunctuation, difficulty, engineReset, pbGhostEnabled, pbGhostKeystrokes]);
 
   const handleRepeat = useCallback(() => {
     setGhostKeystrokes(keystrokes);
@@ -129,6 +142,8 @@ export default function TypingPage() {
     resultSaved.current = false;
     setIsReplaying(false);
     setShowWordsHistory(false);
+    // Award Ghost Mode achievement
+    api.post('/achievements/award/ghost_mode').catch(() => {});
   }, [engineReset, keystrokes]);
 
   const handleModeChange = (newMode: 'time' | 'words') => {
@@ -215,7 +230,13 @@ export default function TypingPage() {
     if (status !== 'finished') {
       resultSaved.current = false;
     }
-  }, [status, wpm, rawWpm, accuracy, mistakes, missedCharsMap, timeConfig, timeElapsed, typedChars.length, mode]);
+    // ── Save PB ghost keystrokes on new personal best ────────────────────────
+    if (status === 'finished' && keystrokes && keystrokes.length > 0 && wpm > pbWpm) {
+      setPbWpm(wpm);
+      localStorage.setItem('pb_wpm', String(wpm));
+      localStorage.setItem('pb_ghost_keystrokes', JSON.stringify(keystrokes));
+    }
+  }, [status, wpm, rawWpm, accuracy, mistakes, missedCharsMap, timeConfig, timeElapsed, typedChars.length, mode, keystrokes, pbWpm]);
 
   useEffect(() => {
     if (status === 'finished') {
@@ -325,6 +346,8 @@ export default function TypingPage() {
             navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
           }
         });
+        // Award Showoff achievement
+        api.post('/achievements/award/showoff').catch(() => {});
       } catch (err) {
         console.error('Failed to copy screenshot', err);
       }
@@ -355,6 +378,7 @@ export default function TypingPage() {
           <button className="hover:text-foreground transition-colors p-2"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></button>
           <button onClick={() => navigate('/multiplayer')} className="hover:text-foreground transition-colors p-2"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg></button>
           <button onClick={() => navigate('/leaderboard')} className="hover:text-foreground transition-colors p-2"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" /><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" /><path d="M4 22h16" /><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" /><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" /><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" /></svg></button>
+          <button onClick={() => navigate('/daily')} title="Daily Challenge" className="hover:text-foreground transition-colors p-2"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></button>
         </div>
         <div className="flex items-center gap-4">
           <button className="hover:text-foreground transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></svg></button>
@@ -367,6 +391,22 @@ export default function TypingPage() {
         <div className="flex gap-4 items-center border-r border-border pr-6">
           <button onClick={togglePunctuation} className={`hover:text-foreground transition-colors flex items-center gap-1.5 ${includePunctuation ? 'text-primary' : ''}`}><span className="text-primary text-xs">@</span> punctuation</button>
           <button onClick={toggleNumbers} className={`hover:text-foreground transition-colors flex items-center gap-1.5 ${includeNumbers ? 'text-primary' : ''}`}><span className="text-primary text-xs">#</span> numbers</button>
+        </div>
+        {/* Ghost PB toggle */}
+        <div className="flex gap-4 items-center border-r border-border pr-6">
+          <button
+            onClick={() => {
+              const next = !pbGhostEnabled;
+              setPbGhostEnabled(next);
+              localStorage.setItem('pb_ghost_enabled', String(next));
+              setGhostKeystrokes(next && pbGhostKeystrokes ? pbGhostKeystrokes : null);
+            }}
+            title={pbWpm > 0 ? `Race your PB (${pbWpm} WPM)` : 'No PB recorded yet — finish a test first!'}
+            className={`hover:text-foreground transition-colors flex items-center gap-1.5 ${pbGhostEnabled && pbGhostKeystrokes ? 'text-primary' : ''}`}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            ghost {pbWpm > 0 ? `· ${pbWpm}` : ''}
+          </button>
         </div>
         <div className="flex gap-4 items-center border-r border-border pr-6">
           <button onClick={() => handleModeChange('time')} className={`hover:text-foreground transition-colors flex items-center gap-1.5 ${mode === 'time' ? 'text-primary' : ''}`}><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg> time</button>
