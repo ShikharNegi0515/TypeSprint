@@ -25,7 +25,7 @@ export function ThemeBuilder() {
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.2 }}
+      transition={{ delay: 0.1 }}
       className="bg-card border border-border rounded-2xl p-8"
     >
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
@@ -35,7 +35,6 @@ export function ThemeBuilder() {
         </div>
       </div>
 
-      {/* Preset Themes Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 mb-8">
         {THEME_OPTIONS.map((t) => (
           <button
@@ -52,7 +51,7 @@ export function ThemeBuilder() {
               style={{
                 background: t.colors.isGradient ? t.colors.bg : t.colors.bg,
                 position: 'relative',
-                overflow: 'hidden'
+                overflow: 'hidden',
               }}
             >
               {!t.colors.isGradient && (
@@ -69,7 +68,6 @@ export function ThemeBuilder() {
         ))}
       </div>
 
-      {/* Custom Theme Builder UI */}
       {theme === 'custom' && (
         <motion.div
           initial={{ opacity: 0, height: 0 }}
@@ -85,7 +83,7 @@ export function ThemeBuilder() {
               Reset to Default
             </button>
           </div>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {[
               { key: 'background', label: 'Background Color', desc: 'Main canvas' },
@@ -126,14 +124,14 @@ export function ThemeBuilder() {
               <span className="text-primary font-bold">const</span>
               <span className="text-foreground">theme</span>
               <span className="text-muted-foreground">=</span>
-              <span className="text-accent-foreground">"awesome"</span>
+              <span className="text-accent-foreground">&quot;awesome&quot;</span>
               <span className="text-foreground">;</span>
             </div>
             <div className="flex gap-2 mt-2">
-              <button className="px-4 py-1.5 rounded-lg bg-primary text-primary-foreground text-sm font-bold shadow-sm">
+              <button type="button" className="px-4 py-1.5 rounded-lg bg-primary text-primary-foreground text-sm font-bold shadow-sm">
                 Primary Button
               </button>
-              <button className="px-4 py-1.5 rounded-lg bg-destructive text-destructive-foreground text-sm font-bold shadow-sm">
+              <button type="button" className="px-4 py-1.5 rounded-lg bg-destructive text-destructive-foreground text-sm font-bold shadow-sm">
                 Error State
               </button>
             </div>

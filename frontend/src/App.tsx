@@ -7,6 +7,7 @@ import ProfilePage from './features/profile/pages/ProfilePage';
 import MultiplayerPage from './features/multiplayer/pages/MultiplayerPage';
 import LeaderboardPage from './features/leaderboard/pages/LeaderboardPage';
 import DailyChallengePage from './features/daily-challenge/pages/DailyChallengePage';
+import SettingsPage from './features/settings/pages/SettingsPage';
 import { useDispatch, useSelector } from 'react-redux';
 import { type RootState } from './store';
 import { setCredentials, logout } from './store/slices/authSlice';
@@ -53,6 +54,7 @@ function App() {
       <Route path="/multiplayer" element={<ProtectedRoute><MultiplayerPage /></ProtectedRoute>} />
       <Route path="/leaderboard" element={<ProtectedRoute><LeaderboardPage /></ProtectedRoute>} />
       <Route path="/daily" element={<ProtectedRoute><DailyChallengePage /></ProtectedRoute>} />
+      <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
     </Routes>
   );
 }

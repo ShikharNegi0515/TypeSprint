@@ -3,6 +3,7 @@ import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { DailyChallengeService } from './daily-challenge.service';
 import { SubmitChallengeDto } from './dto/submit-challenge.dto';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @ApiTags('daily-challenge')
 @ApiBearerAuth()
@@ -12,7 +13,7 @@ export class DailyChallengeController {
 
   @Get('today')
   @ApiOperation({ summary: "Get today's challenge text and status" })
-  async getToday(@CurrentUser() user: any) {
+  async getToday(@CurrentUser() user: User) {
     const challenge = await this.service.getToday();
     const completed = await this.service.hasCompleted(user.id);
     return { ...challenge, completed };
@@ -26,7 +27,7 @@ export class DailyChallengeController {
 
   @Post('submit')
   @ApiOperation({ summary: "Submit result for today's challenge" })
-  async submit(@CurrentUser() user: any, @Body() dto: SubmitChallengeDto) {
+  async submit(@CurrentUser() user: User, @Body() dto: SubmitChallengeDto) {
     return this.service.submit(user.id, dto);
   }
 }

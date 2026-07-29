@@ -5,6 +5,8 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import * as bcrypt from 'bcrypt';
 
+import { User } from '../users/entities/user.entity';
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -32,7 +34,7 @@ export class AuthService {
     return this.generateToken(user);
   }
 
-  generateToken(user: any) {
+  generateToken(user: User) {
     const payload = { sub: user.id, email: user.email, role: user.role };
     return {
       access_token: this.jwtService.sign(payload),
@@ -49,7 +51,7 @@ export class AuthService {
     googleId: string;
     email: string;
     username: string;
-    avatar: string;
+    avatar?: string;
   }) {
     const user = await this.usersService.findByEmail(profile.email);
 

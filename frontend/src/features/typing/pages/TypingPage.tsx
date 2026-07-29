@@ -66,18 +66,21 @@ function formatTime(seconds: number) {
   return `${m}:${s}`;
 }
 
-import { useTheme, type Theme } from '../../../hooks/useTheme';
+import { getTypingSettingsSnapshot } from '../../../hooks/useTypingSettings';
+
+const initialTypingSettings = getTypingSettingsSnapshot();
 
 export default function TypingPage() {
   const navigate = useNavigate();
-  const { theme, setTheme } = useTheme();
-  const [mode, setMode] = useState<'time' | 'words'>('time');
-  const [timeConfig, setTimeConfig] = useState(25);
-  const [wordsConfig, setWordsConfig] = useState(50);
-  const [includeNumbers, setIncludeNumbers] = useState(false);
-  const [includePunctuation, setIncludePunctuation] = useState(false);
-  const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium');
-  const [activeText, setActiveText] = useState(() => generateText(300, false, false, 'medium'));
+  const [mode, setMode] = useState<'time' | 'words'>(initialTypingSettings.mode);
+  const [timeConfig, setTimeConfig] = useState(initialTypingSettings.timeConfig);
+  const [wordsConfig, setWordsConfig] = useState(initialTypingSettings.wordsConfig);
+  const [includeNumbers, setIncludeNumbers] = useState(initialTypingSettings.includeNumbers);
+  const [includePunctuation, setIncludePunctuation] = useState(initialTypingSettings.includePunctuation);
+  const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>(initialTypingSettings.difficulty);
+  const [activeText, setActiveText] = useState(() =>
+    generateText(300, initialTypingSettings.includeNumbers, initialTypingSettings.includePunctuation, initialTypingSettings.difficulty),
+  );
   const [showCustomModal, setShowCustomModal] = useState(false);
   const [customInputValue, setCustomInputValue] = useState('');
   const resultSaved = useRef(false);
@@ -94,9 +97,7 @@ export default function TypingPage() {
 
   // ── Personal-Best ghost ──────────────────────────────────────────────────
   const [pbWpm, setPbWpm] = useState<number>(() => Number(localStorage.getItem('pb_wpm') || 0));
-  const [pbGhostEnabled, setPbGhostEnabled] = useState<boolean>(() =>
-    localStorage.getItem('pb_ghost_enabled') !== 'false'
-  );
+  const [pbGhostEnabled, setPbGhostEnabled] = useState<boolean>(initialTypingSettings.pbGhostEnabled);
   const [pbGhostKeystrokes] = useState<KeystrokeData[] | null>(() => {
     try {
       const raw = localStorage.getItem('pb_ghost_keystrokes');
@@ -375,7 +376,14 @@ export default function TypingPage() {
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect><path d="M6 8h.01"></path><path d="M10 8h.01"></path><path d="M14 8h.01"></path><path d="M18 8h.01"></path><path d="M6 12h.01"></path><path d="M10 12h.01"></path><path d="M14 12h.01"></path><path d="M18 12h.01"></path><path d="M7 16h10"></path></svg>
             typesprint
           </h1>
-          <button className="hover:text-foreground transition-colors p-2"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></button>
+          <button
+            type="button"
+            onClick={() => navigate('/settings')}
+            title="Settings"
+            className="hover:text-foreground transition-colors p-2"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          </button>
           <button onClick={() => navigate('/multiplayer')} className="hover:text-foreground transition-colors p-2"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg></button>
           <button onClick={() => navigate('/leaderboard')} className="hover:text-foreground transition-colors p-2"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" /><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" /><path d="M4 22h16" /><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" /><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" /><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" /></svg></button>
           <button onClick={() => navigate('/daily')} title="Daily Challenge" className="hover:text-foreground transition-colors p-2"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></button>
@@ -673,26 +681,14 @@ export default function TypingPage() {
         </div>
 
         <div className="flex gap-4">
-          <div className="flex items-center gap-2 relative group">
-            <button className="hover:text-foreground transition-colors flex items-center gap-1 py-1">
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="m16.5 16.5-4.5-4.5V6" /></svg>
-              {theme === 'default' ? 'dark' : theme}
-            </button>
-            {/* Invisible hover bridge using pb-2 instead of mb-2 */}
-            <div className="absolute bottom-full right-0 pb-2 w-max opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity duration-200 z-50">
-              <div className="bg-card border border-border rounded-lg shadow-xl p-2 flex flex-col gap-1">
-                {(['default', 'dracula', 'nord', 'matrix', 'pastel'] as Theme[]).map((t) => (
-                  <button
-                    key={t}
-                    onClick={() => setTheme(t)}
-                    className={`text-left px-3 py-1.5 rounded hover:bg-muted transition-colors ${theme === t ? 'text-primary font-bold' : 'text-foreground'}`}
-                  >
-                    {t === 'default' ? 'dark' : t}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
+          <button
+            type="button"
+            onClick={() => navigate('/settings')}
+            className="hover:text-foreground transition-colors flex items-center gap-1 py-1"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" /></svg>
+            settings
+          </button>
 
           <span className="flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 10h3a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h3" /><path d="M6 4v6" /><path d="M18 4v6" /><path d="M10 2h4" /></svg> v1.0.0</span>
         </div>

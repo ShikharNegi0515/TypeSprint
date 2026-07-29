@@ -3,6 +3,7 @@ import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { TypingService } from './typing.service';
 import { CreateTestResultDto } from './dto/create-test-result.dto';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @ApiTags('typing')
 @ApiBearerAuth()
@@ -13,7 +14,7 @@ export class TypingController {
   @Post('results')
   @ApiOperation({ summary: 'Save a typing test result' })
   async saveResult(
-    @CurrentUser() user: any,
+    @CurrentUser() user: User,
     @Body() createTestResultDto: CreateTestResultDto,
   ) {
     return this.typingService.saveResult(user.id, createTestResultDto);
@@ -21,7 +22,7 @@ export class TypingController {
 
   @Get('history')
   @ApiOperation({ summary: 'Get user typing test history' })
-  async getHistory(@CurrentUser() user: any) {
+  async getHistory(@CurrentUser() user: User) {
     return this.typingService.getUserHistory(user.id);
   }
 
@@ -33,13 +34,13 @@ export class TypingController {
 
   @Get('stats')
   @ApiOperation({ summary: 'Get overall user typing stats' })
-  async getStats(@CurrentUser() user: any) {
+  async getStats(@CurrentUser() user: User) {
     return this.typingService.getStats(user.id);
   }
 
   @Get('analytics')
   @ApiOperation({ summary: 'Get analytics data for charts' })
-  async getAnalytics(@CurrentUser() user: any) {
+  async getAnalytics(@CurrentUser() user: User) {
     return this.typingService.getAnalytics(user.id);
   }
 

@@ -63,7 +63,7 @@ export class RoomsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         client.id,
       );
 
-      client.join(room.id);
+      await client.join(room.id);
       this.socketMap.set(client.id, {
         roomId: room.id,
         userId: payload.userId,
@@ -84,8 +84,9 @@ export class RoomsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         .to(room.id)
         .emit('room:player_joined', { username: payload.username });
       this.server.to(room.id).emit('room:participants', participants);
-    } catch (err: any) {
-      client.emit('room:error', { message: err.message });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      client.emit('room:error', { message });
     }
   }
 
@@ -111,7 +112,7 @@ export class RoomsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.to(payload.roomId).emit('room:countdown', { seconds: 3 });
 
     let count = 3;
-    const interval = setInterval(async () => {
+    const interval = setInterval(() => {
       count--;
       if (count > 0) {
         this.server
@@ -119,13 +120,13 @@ export class RoomsGateway implements OnGatewayConnection, OnGatewayDisconnect {
           .emit('room:countdown', { seconds: count });
       } else {
         clearInterval(interval);
-        await this.roomsService.updateRoomStatus(
-          payload.roomId,
-          RoomStatus.PLAYING,
-        );
-        this.server
-          .to(payload.roomId)
-          .emit('room:started', { text: room.text });
+        void this.roomsService
+          .updateRoomStatus(payload.roomId, RoomStatus.PLAYING)
+          .then(() => {
+            this.server
+              .to(payload.roomId)
+              .emit('room:started', { text: room.text });
+          });
       }
     }, 1000);
   }

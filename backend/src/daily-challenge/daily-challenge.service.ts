@@ -89,6 +89,14 @@ export class DailyChallengeService {
     const challenge = await this.challengeRepo.findOne({ where: { date } });
     if (!challenge) return [];
 
+    interface DailyChallengeRaw {
+      userId: string;
+      username: string;
+      wpm: string | number;
+      accuracy: string | number;
+      completedAt: string | Date;
+    }
+
     const results = await this.resultRepo
       .createQueryBuilder('r')
       .leftJoin('r.user', 'u')
@@ -103,7 +111,7 @@ export class DailyChallengeService {
       .where('c.id = :id', { id: challenge.id })
       .orderBy('r.wpm', 'DESC')
       .addOrderBy('r.accuracy', 'DESC')
-      .getRawMany();
+      .getRawMany<DailyChallengeRaw>();
 
     return results.map((r, i) => ({
       rank: i + 1,
@@ -138,13 +146,15 @@ export class DailyChallengeService {
       },
     });
     if (existing) {
-      throw new ConflictException('You have already submitted today\'s challenge');
+      throw new ConflictException(
+        "You have already submitted today's challenge",
+      );
     }
 
     const result = this.resultRepo.create({
       ...dto,
-      user: { id: userId } as any,
-      challenge: { id: challenge.id } as any,
+      user: { id: userId },
+      challenge: { id: challenge.id },
     });
     const saved = await this.resultRepo.save(result);
 
@@ -153,9 +163,13 @@ export class DailyChallengeService {
       const leaderboard = await this.getLeaderboard();
       const entry = leaderboard.find((e) => e.userId === userId);
       const rank = entry?.rank ?? leaderboard.length;
-      await this.achievementsService.checkDailyAchievements(userId, rank, leaderboard.length);
-    } catch (e) {
-      // Non-fatal
+      await this.achievementsService.checkDailyAchievements(
+        userId,
+        rank,
+        leaderboard.length,
+      );
+    } catch {
+      // Non-fatal exception swallowed intentionally
     }
 
     return saved;

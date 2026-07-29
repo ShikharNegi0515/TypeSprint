@@ -144,10 +144,10 @@ const TEXT_BANK: TextBank = {
 };
 
 export class MockAiProvider extends AiProvider {
-  async generateText(category: string, difficulty: string): Promise<string> {
+  generateText(category: string, difficulty: string): Promise<string> {
     const categoryBank = TEXT_BANK[category] || TEXT_BANK['general'];
     const difficultyBank = categoryBank[difficulty] || categoryBank['medium'];
     const index = Math.floor(Math.random() * difficultyBank.length);
-    return difficultyBank[index];
+    return Promise.resolve(difficultyBank[index]);
   }
 }

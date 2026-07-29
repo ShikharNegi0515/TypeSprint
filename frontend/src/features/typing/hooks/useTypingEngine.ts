@@ -36,11 +36,13 @@ export const useTypingEngine = ({ mode, timeLimit, words, isEnabled = true }: Us
   // Refs to keep track of current values for the interval
   const typedCharsRef = useRef(typedChars);
   const mistakesRef = useRef(mistakes);
+  const wordsRef = useRef(words);
 
   useEffect(() => {
     typedCharsRef.current = typedChars;
     mistakesRef.current = mistakes;
-  }, [typedChars, mistakes]);
+    wordsRef.current = words;
+  }, [typedChars, mistakes, words]);
 
   const start = useCallback(() => {
     setStatus('running');
@@ -166,7 +168,7 @@ export const useTypingEngine = ({ mode, timeLimit, words, isEnabled = true }: Us
             let liveIncorrect = 0;
             let liveExtra = 0;
             
-            const aWords = words.split(' ');
+            const aWords = wordsRef.current.split(' ');
             const tWords = currentTyped.split(' ');
             
             for (let i = 0; i < tWords.length; i++) {

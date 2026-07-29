@@ -97,14 +97,18 @@ export class TypingService {
     const heatmap: Record<string, number> = {};
     results.forEach((r) => {
       if (r.missedChars) {
-        let missedMap = r.missedChars;
+        let missedMap: unknown = r.missedChars;
         if (typeof missedMap === 'string') {
           try {
             missedMap = JSON.parse(missedMap);
-          } catch (e) {}
+          } catch {
+            missedMap = null;
+          }
         }
         if (typeof missedMap === 'object' && missedMap !== null) {
-          for (const [char, count] of Object.entries(missedMap)) {
+          for (const [char, count] of Object.entries(
+            missedMap as Record<string, number>,
+          )) {
             const lowerChar = char.toLowerCase();
             heatmap[lowerChar] = (heatmap[lowerChar] || 0) + count;
           }
@@ -156,7 +160,15 @@ export class TypingService {
       .addOrderBy('"accuracy"', 'DESC')
       .limit(limit);
 
-    const topResults = await qb.getRawMany();
+    interface LeaderboardRaw {
+      userId: string;
+      username: string;
+      wpm: string | number;
+      accuracy: string | number;
+      date: string | Date;
+    }
+
+    const topResults = await qb.getRawMany<LeaderboardRaw>();
 
     return topResults.map((r) => ({
       id: r.userId, // use userId as unique key for leaderboard entry

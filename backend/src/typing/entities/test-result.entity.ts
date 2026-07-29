@@ -5,11 +5,13 @@ import {
   CreateDateColumn,
   ManyToOne,
   JoinColumn,
+  Index,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { TypingTest } from './typing-test.entity';
 
 @Entity('test_results')
+@Index(['user', 'createdAt'])
 export class TestResult {
   @PrimaryGeneratedColumn('uuid')
   id: string;

@@ -6,15 +6,10 @@ import {
   HttpStatus,
   Get,
   UseGuards,
-  Request,
+  Req,
   Res,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -23,6 +18,7 @@ import { CurrentUser } from './decorators/current-user.decorator';
 import { AuthGuard } from '@nestjs/passport';
 import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
+import { User } from '../users/entities/user.entity';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -50,7 +46,7 @@ export class AuthController {
   @Get('me')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get current logged in user' })
-  getProfile(@CurrentUser() user: any) {
+  getProfile(@CurrentUser() user: User) {
     return user;
   }
 
@@ -58,7 +54,7 @@ export class AuthController {
   @Get('google')
   @UseGuards(AuthGuard('google'))
   @ApiOperation({ summary: 'Initiate Google OAuth' })
-  async googleAuth(@Request() req: any) {
+  googleAuth() {
     // Initiates the Google OAuth flow
   }
 
@@ -66,12 +62,15 @@ export class AuthController {
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
   @ApiOperation({ summary: 'Google OAuth callback' })
-  async googleAuthRedirect(@Request() req: any, @Res() res: Response) {
+  googleAuthRedirect(@Req() req: { user: User }, @Res() res: Response) {
     // Generate JWT token from validated user
     const { access_token } = this.authService.generateToken(req.user);
 
     // Redirect to frontend with token
-    const frontendUrl = this.configService.get<string>('FRONTEND_URL', 'http://localhost:5173');
+    const frontendUrl = this.configService.get<string>(
+      'FRONTEND_URL',
+      'http://localhost:5173',
+    );
     return res.redirect(`${frontendUrl}/login?token=${access_token}`);
   }
 }

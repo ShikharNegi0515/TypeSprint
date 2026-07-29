@@ -7,8 +7,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { logout } from '../../../store/slices/authSlice';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ThemeBuilder } from '../components/ThemeBuilder';
-
 // ─── Keyboard layout ────────────────────────────────────────────────────────
 const ROWS = [
   ['q','w','e','r','t','y','u','i','o','p','[',']'],
@@ -336,9 +334,6 @@ export default function ProfilePage() {
             } />
           </div>
         )}
-
-        {/* ── Theme Builder ── */}
-        <ThemeBuilder />
 
         {/* ── WPM Chart ── */}
         <motion.div

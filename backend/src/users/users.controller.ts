@@ -2,6 +2,7 @@ import { Controller, Get, Param } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { User } from './entities/user.entity';
 
 @ApiTags('users')
 @ApiBearerAuth()
@@ -11,7 +12,7 @@ export class UsersController {
 
   @Get('me')
   @ApiOperation({ summary: 'Get current user profile' })
-  getMyProfile(@CurrentUser() user: any) {
+  getMyProfile(@CurrentUser() user: User) {
     return this.usersService.findOne(user.id);
   }
 
