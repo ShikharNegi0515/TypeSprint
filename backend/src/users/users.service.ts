@@ -29,6 +29,7 @@ export class UsersService {
 
     const user = this.usersRepository.create({
       ...createUserDto,
+      email: createUserDto.email.trim().toLowerCase(),
       password: hashedPassword,
     });
 
@@ -36,7 +37,9 @@ export class UsersService {
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    return this.usersRepository.findOne({ where: { email } });
+    return this.usersRepository.findOne({
+      where: { email: email.trim().toLowerCase() },
+    });
   }
 
   async findByUsername(username: string): Promise<User | null> {
@@ -74,5 +77,17 @@ export class UsersService {
     if (!valid) throw new BadRequestException('Current password is incorrect');
     const hashed = await bcrypt.hash(newPassword, 10);
     await this.usersRepository.update(userId, { password: hashed });
+  }
+
+  async resetPassword(email: string, newPassword: string): Promise<void> {
+    const user = await this.findByEmail(email);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    if (!user.password) {
+      throw new BadRequestException('Cannot reset password for OAuth accounts');
+    }
+    const hashed = await bcrypt.hash(newPassword, 10);
+    await this.usersRepository.update(user.id, { password: hashed });
   }
 }

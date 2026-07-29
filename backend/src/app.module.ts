@@ -20,6 +20,7 @@ import { UserAchievement } from './achievements/entities/user-achievement.entity
 import { DailyChallengeModule } from './daily-challenge/daily-challenge.module';
 import { DailyChallenge } from './daily-challenge/entities/daily-challenge.entity';
 import { DailyChallengeResult } from './daily-challenge/entities/daily-challenge-result.entity';
+import { PasswordResetOtp } from './auth/entities/password-reset-otp.entity';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { DailyChallengeResult } from './daily-challenge/entities/daily-challenge
           UserAchievement,
           DailyChallenge,
           DailyChallengeResult,
+          PasswordResetOtp,
         ],
         migrations: [__dirname + '/migrations/*{.ts,.js}'],
         synchronize: true,
