@@ -32,6 +32,9 @@ export const useTypingEngine = ({ mode, timeLimit, words, isEnabled = true }: Us
   const [history, setHistory] = useState<HistoryData[]>([]);
   const [keystrokes, setKeystrokes] = useState<KeystrokeData[]>([]);
   const startTimeRef = useRef<number | null>(null);
+  // Track which character positions have already been counted as a miss
+  // so that backspacing and retyping wrong doesn't double-count.
+  const missedPositionsRef = useRef<Set<number>>(new Set());
 
   // Refs to keep track of current values for the interval
   const typedCharsRef = useRef(typedChars);
@@ -60,6 +63,7 @@ export const useTypingEngine = ({ mode, timeLimit, words, isEnabled = true }: Us
     setHistory([]);
     setKeystrokes([]);
     startTimeRef.current = null;
+    missedPositionsRef.current = new Set();
   }, []);
 
   const handleKeyDown = useCallback(
@@ -123,15 +127,25 @@ export const useTypingEngine = ({ mode, timeLimit, words, isEnabled = true }: Us
         
         setTypedChars((prev) => {
           const nextStr = prev + e.key;
-          // Count mistake if the character is wrong
+          const position = nextStr.length - 1; // 0-indexed position of the new character
+
+          // Count mistake if the character is wrong or extra
           if (nextStr.length <= words.length) {
-            const expectedChar = words[nextStr.length - 1];
-            if (e.key !== expectedChar) {
+            const expectedChar = words[position];
+            if (e.key !== expectedChar && !missedPositionsRef.current.has(position)) {
+              // First time this position is typed wrong — mark and count it
+              missedPositionsRef.current.add(position);
               setMistakes((m) => m + 1);
               setMissedCharsMap((mMap) => ({
                 ...mMap,
                 [expectedChar]: (mMap[expectedChar] || 0) + 1,
               }));
+            }
+          } else {
+            // Extra character (beyond word length) — only count once per position
+            if (!missedPositionsRef.current.has(position)) {
+              missedPositionsRef.current.add(position);
+              setMistakes((m) => m + 1);
             }
           }
           return nextStr;
@@ -259,10 +273,12 @@ export const useTypingEngine = ({ mode, timeLimit, words, isEnabled = true }: Us
       ? (correctChars / 5 / (timeForCalc / 60)) || 0
       : 0;
       
+  const totalAttempts = correctChars + mistakes + missedChars;
   const accuracy = 
-    (correctChars + incorrectChars + extraChars + missedChars) > 0 
-      ? Math.max(0, (correctChars / (correctChars + incorrectChars + extraChars + missedChars)) * 100)
+    totalAttempts > 0 
+      ? Math.max(0, Math.floor((correctChars / totalAttempts) * 100))
       : 100;
+
 
   const rawWpmPerSec: number[] = [];
   let currentSecKeystrokes = 0;

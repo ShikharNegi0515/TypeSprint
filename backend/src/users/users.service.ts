@@ -1,4 +1,4 @@
-import { Injectable, ConflictException } from '@nestjs/common';
+import { Injectable, ConflictException, BadRequestException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
@@ -64,5 +64,15 @@ export class UsersService {
 
   async updateGoogleId(userId: string, googleId: string): Promise<void> {
     await this.usersRepository.update(userId, { googleId });
+  }
+
+  async changePassword(userId: string, currentPassword: string, newPassword: string): Promise<void> {
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User not found');
+    if (!user.password) throw new BadRequestException('Cannot change password for OAuth accounts');
+    const valid = await bcrypt.compare(currentPassword, user.password);
+    if (!valid) throw new BadRequestException('Current password is incorrect');
+    const hashed = await bcrypt.hash(newPassword, 10);
+    await this.usersRepository.update(userId, { password: hashed });
   }
 }

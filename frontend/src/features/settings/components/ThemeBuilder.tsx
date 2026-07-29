@@ -2,9 +2,9 @@ import { motion } from 'framer-motion';
 import { useTheme, defaultCustomColors, type Theme, type CustomColors } from '../../../hooks/useTheme';
 
 const THEME_OPTIONS = [
-  { id: 'default', name: 'Monkeytype (Default)', colors: { bg: '#323437', main: '#e2b714' } },
+  { id: 'default', name: 'Dark', colors: { bg: '#323437', main: '#e2b714' } },
   { id: 'dracula', name: 'Dracula', colors: { bg: '#282a36', main: '#bd93f9' } },
-  { id: 'nord', name: 'Nord (Premium)', colors: { bg: '#242933', main: '#88c0d0' } },
+  { id: 'nord', name: 'Nord', colors: { bg: '#242933', main: '#88c0d0' } },
   { id: 'matrix', name: 'Matrix', colors: { bg: '#0d0208', main: '#00ff41' } },
   { id: 'pastel', name: 'Pastel', colors: { bg: '#fdf6e3', main: '#2aa198' } },
   { id: 'custom', name: 'Custom Theme', colors: { bg: 'conic-gradient(from 180deg at 50% 50%, #2a8af6 0deg, #a853ba 180deg, #e92a67 360deg)', main: 'transparent', isGradient: true } },
@@ -40,11 +40,10 @@ export function ThemeBuilder() {
           <button
             key={t.id}
             onClick={() => setTheme(t.id as Theme)}
-            className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all ${
-              theme === t.id
+            className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all ${theme === t.id
                 ? 'border-primary bg-primary/10 shadow-[0_0_15px_color-mix(in_srgb,var(--primary)_30%,transparent)]'
                 : 'border-border bg-muted/30 hover:bg-muted/80'
-            }`}
+              }`}
           >
             <div
               className="w-8 h-8 rounded-full border border-border shadow-inner"

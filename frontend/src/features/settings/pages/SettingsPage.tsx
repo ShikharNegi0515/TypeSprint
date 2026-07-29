@@ -44,7 +44,7 @@ export default function SettingsPage() {
   const { theme } = useTheme();
 
   const themeLabel =
-    theme === 'default' ? 'Monkeytype (Default)' : theme.charAt(0).toUpperCase() + theme.slice(1);
+    theme === 'default' ? 'Dark' : theme.charAt(0).toUpperCase() + theme.slice(1);
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col items-center font-mono pb-16">
@@ -98,11 +98,10 @@ export default function SettingsPage() {
                 key={m}
                 type="button"
                 onClick={() => setSettings({ mode: m })}
-                className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
-                  settings.mode === m
+                className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${settings.mode === m
                     ? 'border-primary bg-primary/10 text-primary'
                     : 'border-border text-muted-foreground hover:text-foreground'
-                }`}
+                  }`}
               >
                 {m}
               </button>
@@ -118,9 +117,8 @@ export default function SettingsPage() {
                     key={t}
                     type="button"
                     onClick={() => setSettings({ timeConfig: t })}
-                    className={`px-3 py-1.5 rounded-lg text-sm border transition-colors ${
-                      settings.timeConfig === t ? 'border-primary text-primary bg-primary/10' : 'border-border text-muted-foreground'
-                    }`}
+                    className={`px-3 py-1.5 rounded-lg text-sm border transition-colors ${settings.timeConfig === t ? 'border-primary text-primary bg-primary/10' : 'border-border text-muted-foreground'
+                      }`}
                   >
                     {t}
                   </button>
@@ -136,9 +134,8 @@ export default function SettingsPage() {
                     key={w}
                     type="button"
                     onClick={() => setSettings({ wordsConfig: w })}
-                    className={`px-3 py-1.5 rounded-lg text-sm border transition-colors ${
-                      settings.wordsConfig === w ? 'border-primary text-primary bg-primary/10' : 'border-border text-muted-foreground'
-                    }`}
+                    className={`px-3 py-1.5 rounded-lg text-sm border transition-colors ${settings.wordsConfig === w ? 'border-primary text-primary bg-primary/10' : 'border-border text-muted-foreground'
+                      }`}
                   >
                     {w}
                   </button>
@@ -155,9 +152,8 @@ export default function SettingsPage() {
                   key={d}
                   type="button"
                   onClick={() => setSettings({ difficulty: d })}
-                  className={`px-3 py-1.5 rounded-lg text-sm border capitalize transition-colors ${
-                    settings.difficulty === d ? 'border-primary text-primary bg-primary/10' : 'border-border text-muted-foreground'
-                  }`}
+                  className={`px-3 py-1.5 rounded-lg text-sm border capitalize transition-colors ${settings.difficulty === d ? 'border-primary text-primary bg-primary/10' : 'border-border text-muted-foreground'
+                    }`}
                 >
                   {d}
                 </button>
@@ -211,15 +207,24 @@ export default function SettingsPage() {
             </div>
           </dl>
 
-          <Link
-            to="/profile"
-            className="mt-6 inline-flex items-center gap-2 text-sm text-primary hover:underline font-medium"
-          >
-            View full profile & stats
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="m9 18 6-6-6-6" />
-            </svg>
-          </Link>
+          <div className="mt-6 flex flex-col sm:flex-row gap-3">
+            <Link
+              to="/profile"
+              className="inline-flex items-center gap-2 text-sm text-primary hover:underline font-medium"
+            >
+              View full profile & stats
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="m9 18 6-6-6-6" />
+              </svg>
+            </Link>
+            <Link
+              to="/settings/password"
+              className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors font-medium"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              Change Password
+            </Link>
+          </div>
         </motion.div>
       </main>
     </div>

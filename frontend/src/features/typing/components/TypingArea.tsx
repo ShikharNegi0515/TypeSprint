@@ -65,6 +65,102 @@ const MemoizedChar = memo(({
   );
 });
 
+interface WordProps {
+  actualWord: string;
+  typedWord?: string;
+  ghostWord?: string;
+  isCurrentWord: boolean;
+  isGhostCurrentWord: boolean;
+  hasSpaceAfter: boolean;
+  typedSpace?: string;
+  ghostSpace?: string;
+  setCurrentRef: (el: HTMLSpanElement | null) => void;
+  setGhostCurrentRef: (el: HTMLSpanElement | null) => void;
+}
+
+const MemoizedWord = memo(({
+  actualWord,
+  typedWord,
+  ghostWord,
+  isCurrentWord,
+  isGhostCurrentWord,
+  hasSpaceAfter,
+  typedSpace,
+  ghostSpace,
+  setCurrentRef,
+  setGhostCurrentRef
+}: WordProps) => {
+  const maxLen = Math.max(actualWord.length, typedWord?.length || 0, ghostWord?.length || 0);
+  const chars = [];
+  
+  for (let cIdx = 0; cIdx <= maxLen; cIdx++) {
+    const isCurrentChar = isCurrentWord && cIdx === (typedWord?.length || 0);
+    const isGhostCurrentChar = isGhostCurrentWord && cIdx === (ghostWord?.length || 0);
+    
+    if (cIdx < actualWord.length) {
+      chars.push(
+        <MemoizedChar
+          key={cIdx}
+          char={actualWord[cIdx]}
+          typedChar={typedWord?.[cIdx]}
+          ghostChar={ghostWord?.[cIdx]}
+          isExtra={false}
+          isCurrent={isCurrentChar}
+          isGhostCurrent={isGhostCurrentChar}
+          setCurrentRef={setCurrentRef}
+          setGhostCurrentRef={setGhostCurrentRef}
+        />
+      );
+    } else if (cIdx < (typedWord?.length || 0) || cIdx < (ghostWord?.length || 0)) {
+      chars.push(
+        <MemoizedChar
+          key={cIdx}
+          char={typedWord?.[cIdx] || ghostWord?.[cIdx] || ''}
+          typedChar={typedWord?.[cIdx]}
+          ghostChar={ghostWord?.[cIdx]}
+          isExtra={true}
+          isCurrent={isCurrentChar}
+          isGhostCurrent={isGhostCurrentChar}
+          setCurrentRef={setCurrentRef}
+          setGhostCurrentRef={setGhostCurrentRef}
+        />
+      );
+    } else if (isCurrentChar || isGhostCurrentChar) {
+       chars.push(
+        <span 
+          key={cIdx} 
+          ref={(el) => {
+            if (isCurrentChar) setCurrentRef(el);
+            if (isGhostCurrentChar) setGhostCurrentRef(el);
+          }} 
+          className="inline-block" 
+        >
+          &#8203;
+        </span>
+       );
+    }
+  }
+  
+  return (
+    <div className="inline-block mr-0">
+      {chars}
+      {hasSpaceAfter && (
+        <MemoizedChar
+          key="space"
+          char=" "
+          typedChar={typedSpace}
+          ghostChar={ghostSpace}
+          isExtra={false}
+          isCurrent={false}
+          isGhostCurrent={false}
+          setCurrentRef={setCurrentRef}
+          setGhostCurrentRef={setGhostCurrentRef}
+        />
+      )}
+    </div>
+  );
+});
+
 export const TypingArea: React.FC<TypingAreaProps> = ({ words, typedChars, ghostTypedChars }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const currentRef = useRef<HTMLSpanElement>(null);
@@ -125,7 +221,7 @@ export const TypingArea: React.FC<TypingAreaProps> = ({ words, typedChars, ghost
     >
       <div 
         ref={containerRef}
-        className="text-muted-foreground z-0 relative transition-transform duration-200 ease-out"
+        className="text-muted-foreground z-0 relative transition-transform duration-300 ease-in-out"
         style={{ transform: `translateY(${translateY}px)` }}
       >
         {showCaret && (
@@ -133,7 +229,7 @@ export const TypingArea: React.FC<TypingAreaProps> = ({ words, typedChars, ghost
             className="absolute w-[3px] bg-primary rounded-full z-20"
             initial={false}
             animate={{ x: caretPos.left, y: caretPos.top + 5 }}
-            transition={{ type: "spring", stiffness: 500, damping: 30, mass: 1 }}
+            transition={{ type: "tween", duration: 0.1, ease: "linear" }}
             style={{ 
               height: '42px',
               top: 0,
@@ -148,7 +244,7 @@ export const TypingArea: React.FC<TypingAreaProps> = ({ words, typedChars, ghost
             className="absolute w-[3px] bg-muted-foreground opacity-40 rounded-full z-10"
             initial={false}
             animate={{ x: ghostCaretPos.left, y: ghostCaretPos.top + 5 }}
-            transition={{ type: "spring", stiffness: 500, damping: 30, mass: 1 }}
+            transition={{ type: "tween", duration: 0.1, ease: "linear" }}
             style={{ 
               height: '42px',
               top: 0,
@@ -158,90 +254,22 @@ export const TypingArea: React.FC<TypingAreaProps> = ({ words, typedChars, ghost
           />
         )}
 
-        {actualWords.map((actualWord, wIdx) => {
-          const typedWord = typedWordsList[wIdx];
-          const ghostWord = ghostWordsList?.[wIdx];
-          
-          const isCurrentWord = wIdx === typedWordsList.length - 1;
-          const isGhostCurrentWord = ghostWordsList && wIdx === ghostWordsList.length - 1;
-          
-          const maxLen = Math.max(actualWord.length, typedWord?.length || 0, ghostWord?.length || 0);
-          const chars = [];
-          
-          for (let cIdx = 0; cIdx <= maxLen; cIdx++) {
-            const isCurrentChar = isCurrentWord && cIdx === (typedWord?.length || 0);
-            const isGhostCurrentChar = isGhostCurrentWord && cIdx === (ghostWord?.length || 0);
-            
-            if (cIdx < actualWord.length) {
-              // Normal character
-              chars.push(
-                <MemoizedChar
-                  key={cIdx}
-                  char={actualWord[cIdx]}
-                  typedChar={typedWord?.[cIdx]}
-                  ghostChar={ghostWord?.[cIdx]}
-                  isExtra={false}
-                  isCurrent={isCurrentChar ?? false}
-                  isGhostCurrent={isGhostCurrentChar ?? false}
-                  setCurrentRef={setCurrentRef}
-                  setGhostCurrentRef={setGhostCurrentRef}
-                />
-              );
-            } else if (cIdx < (typedWord?.length || 0) || cIdx < (ghostWord?.length || 0)) {
-              // Extra character
-              chars.push(
-                <MemoizedChar
-                  key={cIdx}
-                  char={typedWord?.[cIdx] || ghostWord?.[cIdx] || ''}
-                  typedChar={typedWord?.[cIdx]}
-                  ghostChar={ghostWord?.[cIdx]}
-                  isExtra={true}
-                  isCurrent={isCurrentChar ?? false}
-                  isGhostCurrent={isGhostCurrentChar ?? false}
-                  setCurrentRef={setCurrentRef}
-                  setGhostCurrentRef={setGhostCurrentRef}
-                />
-              );
-            } else if (isCurrentChar || isGhostCurrentChar) {
-               // Render an empty phantom span just for the caret to attach to at the end of the word if it's strictly longer than actualWord
-               chars.push(
-                <span 
-                  key={cIdx} 
-                  ref={(el) => {
-                    if (isCurrentChar) setCurrentRef(el);
-                    if (isGhostCurrentChar) setGhostCurrentRef(el);
-                  }} 
-                  className="inline-block" 
-                >
-                  &#8203;
-                </span>
-               );
-            }
-          }
-          
-          // Add space at the end of the word (caret handled by the phantom span in the loop above)
-          
-          return (
-            <div key={wIdx} className="inline-block mr-0">
-              {chars}
-              {wIdx < actualWords.length - 1 && (
-                <MemoizedChar
-                  key="space"
-                  char=" "
-                  typedChar={wIdx < typedWordsList.length - 1 ? ' ' : undefined}
-                  ghostChar={ghostWordsList && wIdx < ghostWordsList.length - 1 ? ' ' : undefined}
-                  isExtra={false}
-                  isCurrent={false} // Caret is handled by the phantom span at the end of the word
-                  isGhostCurrent={false}
-                  setCurrentRef={setCurrentRef}
-                  setGhostCurrentRef={setGhostCurrentRef}
-                />
-              )}
-            </div>
-          );
-        })}
+        {actualWords.map((actualWord, wIdx) => (
+          <MemoizedWord
+            key={wIdx}
+            actualWord={actualWord}
+            typedWord={typedWordsList[wIdx]}
+            ghostWord={ghostWordsList?.[wIdx]}
+            isCurrentWord={wIdx === typedWordsList.length - 1}
+            isGhostCurrentWord={!!ghostWordsList && wIdx === ghostWordsList.length - 1}
+            hasSpaceAfter={wIdx < actualWords.length - 1}
+            typedSpace={wIdx < typedWordsList.length - 1 ? ' ' : undefined}
+            ghostSpace={ghostWordsList && wIdx < ghostWordsList.length - 1 ? ' ' : undefined}
+            setCurrentRef={setCurrentRef}
+            setGhostCurrentRef={setGhostCurrentRef}
+          />
+        ))}
       </div>
     </div>
   );
 };
-

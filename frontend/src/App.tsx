@@ -8,6 +8,14 @@ import MultiplayerPage from './features/multiplayer/pages/MultiplayerPage';
 import LeaderboardPage from './features/leaderboard/pages/LeaderboardPage';
 import DailyChallengePage from './features/daily-challenge/pages/DailyChallengePage';
 import SettingsPage from './features/settings/pages/SettingsPage';
+import SecurityPage from './features/legal/pages/SecurityPage';
+import PrivacyPage from './features/legal/pages/PrivacyPage';
+import TermsPage from './features/legal/pages/TermsPage';
+import ContactPage from './features/legal/pages/ContactPage';
+import SupportPage from './features/legal/pages/SupportPage';
+import ForgotPasswordPage from './features/legal/pages/ForgotPasswordPage';
+import ChangePasswordPage from './features/settings/pages/ChangePasswordPage';
+import NotFoundPage from './features/legal/pages/NotFoundPage';
 import { useDispatch, useSelector } from 'react-redux';
 import { type RootState } from './store';
 import { setCredentials, logout } from './store/slices/authSlice';
@@ -49,12 +57,20 @@ function App() {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/security" element={<SecurityPage />} />
+      <Route path="/privacy" element={<PrivacyPage />} />
+      <Route path="/terms" element={<TermsPage />} />
       <Route path="/" element={<ProtectedRoute><TypingPage /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
       <Route path="/multiplayer" element={<ProtectedRoute><MultiplayerPage /></ProtectedRoute>} />
       <Route path="/leaderboard" element={<ProtectedRoute><LeaderboardPage /></ProtectedRoute>} />
       <Route path="/daily" element={<ProtectedRoute><DailyChallengePage /></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+      <Route path="/contact" element={<ContactPage />} />
+      <Route path="/support" element={<SupportPage />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/settings/password" element={<ChangePasswordPage />} />
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }
