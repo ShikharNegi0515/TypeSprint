@@ -174,12 +174,6 @@ export default function SettingsPage() {
               checked={settings.includeNumbers}
               onChange={(v) => setSettings({ includeNumbers: v })}
             />
-            <ToggleRow
-              label="Personal-best ghost"
-              description="Show a ghost cursor racing your best WPM on the home test"
-              checked={settings.pbGhostEnabled}
-              onChange={(v) => setSettings({ pbGhostEnabled: v })}
-            />
           </div>
         </motion.div>
 
