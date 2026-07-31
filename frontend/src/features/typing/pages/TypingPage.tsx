@@ -98,7 +98,7 @@ export default function TypingPage() {
 
   // ── Personal-Best ghost ──────────────────────────────────────────────────
   const [pbWpm, setPbWpm] = useState<number>(() => Number(localStorage.getItem('pb_wpm') || 0));
-  const [pbGhostEnabled, setPbGhostEnabled] = useState<boolean>(initialTypingSettings.pbGhostEnabled);
+  const [pbGhostEnabled, setPbGhostEnabled] = useState<boolean>(false);
   const [pbGhostKeystrokes] = useState<KeystrokeData[] | null>(() => {
     try {
       const raw = localStorage.getItem('pb_ghost_keystrokes');

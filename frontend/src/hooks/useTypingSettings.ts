@@ -10,7 +10,6 @@ export interface TypingSettings {
   difficulty: Difficulty;
   includeNumbers: boolean;
   includePunctuation: boolean;
-  pbGhostEnabled: boolean;
 }
 
 const STORAGE_KEY = 'typingSettings';
@@ -22,18 +21,13 @@ export const defaultTypingSettings: TypingSettings = {
   difficulty: 'medium',
   includeNumbers: false,
   includePunctuation: false,
-  pbGhostEnabled: true,
 };
 
 function loadSettings(): TypingSettings {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) {
-      const pbGhost = localStorage.getItem('pb_ghost_enabled');
-      return {
-        ...defaultTypingSettings,
-        pbGhostEnabled: pbGhost !== 'false',
-      };
+      return defaultTypingSettings;
     }
     return { ...defaultTypingSettings, ...JSON.parse(raw) };
   } catch {
@@ -46,7 +40,6 @@ export function useTypingSettings() {
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
-    localStorage.setItem('pb_ghost_enabled', String(settings.pbGhostEnabled));
   }, [settings]);
 
   const setSettings = useCallback((patch: Partial<TypingSettings>) => {

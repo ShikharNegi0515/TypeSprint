@@ -44,7 +44,7 @@ export class RoomParticipant {
   @Column({ name: 'is_finished', default: false })
   isFinished: boolean;
 
-  @Column({ nullable: true, name: 'finish_rank' })
+  @Column({ type: 'int', nullable: true, name: 'finish_rank' })
   finishRank?: number | null;
 
   @CreateDateColumn({ name: 'joined_at' })
