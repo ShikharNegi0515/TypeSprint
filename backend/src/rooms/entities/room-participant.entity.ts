@@ -36,16 +36,16 @@ export class RoomParticipant {
   progress: number;
 
   @Column({ nullable: true, type: 'decimal', precision: 5, scale: 2 })
-  wpm?: number;
+  wpm?: number | null;
 
   @Column({ nullable: true, type: 'decimal', precision: 5, scale: 2 })
-  accuracy?: number;
+  accuracy?: number | null;
 
   @Column({ name: 'is_finished', default: false })
   isFinished: boolean;
 
   @Column({ nullable: true, name: 'finish_rank' })
-  finishRank?: number;
+  finishRank?: number | null;
 
   @CreateDateColumn({ name: 'joined_at' })
   joinedAt: Date;

@@ -148,16 +148,17 @@ export const useTypingEngine = ({ mode, timeLimit, words, isEnabled = true }: Us
               setMistakes((m) => m + 1);
             }
           }
+
+          // Finish detection INSIDE the updater so we get the real new length
+          if (nextStr.length >= words.length) {
+            setStatus('finished');
+          }
+
           return nextStr;
         });
-
-        // Finish if reached the end
-        if (typedChars.length + 1 >= words.length) {
-          setStatus('finished');
-        }
       }
     },
-    [isEnabled, status, words, typedChars.length, start]
+    [isEnabled, status, words, start]
   );
 
   useEffect(() => {

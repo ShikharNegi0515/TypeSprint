@@ -49,7 +49,7 @@ import { PasswordResetOtp } from './auth/entities/password-reset-otp.entity';
           PasswordResetOtp,
         ],
         migrations: [__dirname + '/migrations/*{.ts,.js}'],
-        synchronize: true,
+        synchronize: configService.get<string>('NODE_ENV') !== 'production',
       }),
     }),
     UsersModule,

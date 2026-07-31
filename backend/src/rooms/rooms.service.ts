@@ -146,10 +146,10 @@ export class RoomsService {
       { room: { id: roomId } },
       {
         progress: 0,
-        wpm: undefined,
-        accuracy: undefined,
+        wpm: null,
+        accuracy: null,
         isFinished: false,
-        finishRank: undefined,
+        finishRank: null,
       },
     );
   }

@@ -4,11 +4,7 @@ import { UsersService } from './users.service';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from './entities/user.entity';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-
-class ChangePasswordDto {
-  currentPassword: string;
-  newPassword: string;
-}
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @ApiTags('users')
 @ApiBearerAuth()
@@ -43,3 +39,4 @@ export class UsersController {
     return { message: 'Password changed successfully' };
   }
 }
+

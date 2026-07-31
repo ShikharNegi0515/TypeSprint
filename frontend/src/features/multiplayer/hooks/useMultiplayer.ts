@@ -40,78 +40,86 @@ export function useMultiplayer() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const socket = io('http://localhost:3000/rooms', { transports: ['websocket'] });
-    socketRef.current = socket;
-
-    socket.on('room:joined', ({ room, participants }) => {
-      setRoom(room);
-      setParticipants(participants);
-      setStatus('lobby');
-    });
-
-    socket.on('room:participants', (parts: Participant[]) => {
-      setParticipants(parts);
-    });
-
-    socket.on('room:player_joined', ({ username }) => {
-      setMessages((prev) => [...prev, { username: 'System', message: `${username} joined the room`, timestamp: new Date().toISOString() }]);
-    });
-
-    socket.on('room:player_left', ({ username }) => {
-      setMessages((prev) => [...prev, { username: 'System', message: `${username} left the room`, timestamp: new Date().toISOString() }]);
-    });
-
-    socket.on('room:countdown', ({ seconds }) => {
-      setStatus('countdown');
-      setCountdown(seconds);
-    });
-
-    socket.on('room:started', ({ text: roomText }) => {
-      setText(roomText);
-      setStatus('playing');
-    });
-
-    socket.on('room:player_progress', (data: Participant) => {
-      setParticipants((prev) =>
-        prev.map((p) => (p.userId === data.userId ? { ...p, ...data } : p))
-      );
-    });
-
-    socket.on('room:finished', ({ participants: final }) => {
-      setParticipants(final);
-      setStatus('finished');
-    });
-
-    socket.on('room:chat_message', (msg: ChatMessage) => {
-      setMessages((prev) => [...prev, msg]);
-    });
-
-    socket.on('room:rematch', ({ room: newRoom, participants: newParts }) => {
-      setRoom(newRoom);
-      setParticipants(newParts);
-      setText('');
-      setStatus('lobby');
-    });
-
-    socket.on('room:error', ({ message }) => {
-      setError(message);
-    });
-
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
-
   const joinRoom = useCallback((roomCode: string) => {
-    if (!user || !socketRef.current) return;
+    if (!user) return;
     setError(null);
-    socketRef.current.emit('room:join', {
+
+    let s = socketRef.current;
+    if (!s) {
+      const wsUrl = import.meta.env.VITE_WS_URL || 'http://localhost:3000';
+      s = io(`${wsUrl}/rooms`, { transports: ['websocket'] });
+      socketRef.current = s;
+
+      s.on('room:joined', ({ room, participants }) => {
+        setRoom(room);
+        setParticipants(participants);
+        setStatus('lobby');
+      });
+
+      s.on('room:participants', (parts: Participant[]) => {
+        setParticipants(parts);
+      });
+
+      s.on('room:player_joined', ({ username }) => {
+        setMessages((prev) => [...prev, { username: 'System', message: `${username} joined the room`, timestamp: new Date().toISOString() }]);
+      });
+
+      s.on('room:player_left', ({ username }) => {
+        setMessages((prev) => [...prev, { username: 'System', message: `${username} left the room`, timestamp: new Date().toISOString() }]);
+      });
+
+      s.on('room:countdown', ({ seconds }) => {
+        setStatus('countdown');
+        setCountdown(seconds);
+      });
+
+      s.on('room:started', ({ text: roomText }) => {
+        setText(roomText);
+        setStatus('playing');
+      });
+
+      s.on('room:player_progress', (data: Participant) => {
+        setParticipants((prev) =>
+          prev.map((p) => (p.userId === data.userId ? { ...p, ...data } : p))
+        );
+      });
+
+      s.on('room:finished', ({ participants: final }) => {
+        setParticipants(final);
+        setStatus('finished');
+      });
+
+      s.on('room:chat_message', (msg: ChatMessage) => {
+        setMessages((prev) => [...prev, msg]);
+      });
+
+      s.on('room:rematch', ({ room: newRoom, participants: newParts }) => {
+        setRoom(newRoom);
+        setParticipants(newParts);
+        setText('');
+        setStatus('lobby');
+      });
+
+      s.on('room:error', ({ message }) => {
+        setError(message);
+      });
+    }
+
+    s.emit('room:join', {
       roomCode,
       userId: user.id,
       username: user.username,
     });
   }, [user]);
+
+  useEffect(() => {
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current = null;
+      }
+    };
+  }, []);
 
   const startGame = useCallback(() => {
     if (!room || !user || !socketRef.current) return;
