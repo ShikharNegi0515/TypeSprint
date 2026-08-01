@@ -31,6 +31,9 @@ export class MailService {
       host: smtpHost,
       port: smtpPort,
       secure: smtpSecure,
+      // Force IPv4 — Render free tier has no outbound IPv6 connectivity
+      // so smtp.gmail.com must resolve to a 4-byte address.
+      family: 4,
       auth: {
         user: smtpUser,
         pass: smtpPass,
