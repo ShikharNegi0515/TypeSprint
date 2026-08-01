@@ -27,18 +27,19 @@ export class MailService {
       return;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const transporter = nodemailer.createTransport({
       host: smtpHost,
       port: smtpPort,
       secure: smtpSecure,
-      // Force IPv4 — Render free tier has no outbound IPv6 connectivity
-      // so smtp.gmail.com must resolve to a 4-byte address.
+      // Force IPv4 — Render free tier has no outbound IPv6 connectivity.
+      // `family` is valid at runtime but missing from @types/nodemailer.
       family: 4,
       auth: {
         user: smtpUser,
         pass: smtpPass,
       },
-    });
+    } as any);
 
     // Verify SMTP connection before attempting to send
     try {
