@@ -116,6 +116,14 @@ export class TypingService {
       }
     });
 
+    // Normalize by number of tests so the heatmap shows average misses
+    // per key per test, not a raw lifetime total that grows unboundedly.
+    if (totalTests > 0) {
+      for (const key of Object.keys(heatmap)) {
+        heatmap[key] = Math.round((heatmap[key] / totalTests) * 10) / 10;
+      }
+    }
+
     return {
       totalTests,
       averageWpm: Math.round(averageWpm),
