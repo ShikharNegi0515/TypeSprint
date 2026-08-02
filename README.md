@@ -1,15 +1,17 @@
 # TypeSprint
 
-TypeSprint is a production-ready, highly interactive typing platform built with modern web technologies. It features real-time multiplayer racing, AI-generated typing paragraphs across various topics, global leaderboards, and an engaging achievement system.
+TypeSprint is a professional-grade, competitive typing platform built to provide a premium typing experience. Inspired by industry leaders, it goes beyond simple speed tests by offering deep analytical insights into your typing habits, gamified progression, and extensive customization. 
 
-## 🚀 Features
+Whether you're warming up for a coding session or trying to climb the global leaderboards, TypeSprint provides the tools and feedback you need to type faster and more accurately.
 
-* **Real-time Multiplayer:** Race against friends or strangers in real-time using WebSockets.
-* **AI-Generated Text:** Practice your typing with dynamically generated paragraphs across categories like Programming, Science, History, and more.
-* **Global Leaderboard:** Compete for the top spot on the global WPM leaderboard.
-* **Achievement System:** Unlock badges as you hit typing milestones (e.g., Speed Demon for 100+ WPM).
-* **Detailed Analytics:** Track your WPM, accuracy, and personal bests over time with beautiful interactive charts.
-* **OAuth Integration:** Seamlessly log in or register using your Google account.
+## 🚀 Key Features
+
+* **Advanced Typing Engine:** Zero input-lag typing experience with real-time WPM, accuracy, and raw speed calculations.
+* **Deep Analytics & Heatmaps:** Tracks your most-missed keys and visualizes your weaknesses via a dynamic 3D keyboard heatmap.
+* **Gamified Progression:** Earn achievements ranging from *Common* to *Legendary* based on your speed, accuracy, and practice volume.
+* **Global Leaderboards:** Compete against other typists worldwide to claim the top spot.
+* **Extensive Customization:** Fully theme-aware UI with multiple curated aesthetics (like Nord) and a dedicated Theme Builder.
+* **Secure Authentication:** Robust user accounts powered by standard email/password authentication, password recovery (SMTP), and Google OAuth.
 * **Modern UI:** Built with React 19, Tailwind CSS, and Framer Motion for a stunning, responsive, and glassmorphic design.
 
 ## 🛠️ Tech Stack
